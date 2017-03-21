@@ -63,8 +63,6 @@ DBInit::~DBInit()
 {
 }
 
-
-//bool succeed()
 bool DBInit::succeed()
 {
     return m_success;

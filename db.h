@@ -36,38 +36,20 @@ private:
 class DB
 {
 public:
-    // static DB& instance();
 
-    // 算了，先这样写吧，反正不懂c++
-    //static DB& instance()
     static DB& instance(QString connectionName = "")
     {
         static DB db;
-
-
-        // connectionName 没有意义？
-        // 只有第一个设置有效，
-        // 如果已连接，conn.isOpen()启动是有效的！
-        // 如果允许多个连接，只有保存成数组了，
-        // 或者其他的，新增一个连接增加一个元素
-
-        // 如果客户端启动多个，或者同时有在不同地方的多个客户端启动
-        // 这些情况暂时忽略
-
-        qDebug() << "db.conn.isOpen(): " << db.conn.isOpen();
-
+        //qDebug() << "db.conn.isOpen(): " << db.conn.isOpen();
 
         //if(db.conn.isValid()) { // isValid()表示驱动是否有效
         if(!db.conn.isOpen()) { // isOpen()连接是否打开
-            //db.conn = db.setConn(connectionName);
             db.setConn(connectionName);
-            //return db;
         }
 
-        qDebug() << "db.conn.isOpen(): " << db.conn.isOpen();
+        //qDebug() << "db.conn.isOpen(): " << db.conn.isOpen();
 
         db.q = new QSqlQuery(db.conn);
-        
         return db;
     }
 
@@ -88,12 +70,7 @@ public:
     QList<QVariantMap> fetch(QStringList keys);
 
 
-    // QList<QHash<QString, QVariant>> getSongs();
-
-    // 可以定义一个用while循环得到的索引数组数据！
-    // QMap<QString, QVariant> query(QString sql);
     QList<QVariantList> query(QString sql);
-
     QList<QVariantList> query(QString sql, bool placeholder, QVariantMap bindings);
 
     // 这样写用起来还是容易出错，不如增加到3个参数，
@@ -112,14 +89,7 @@ public:
     //QList<QVariantMap> query(QString sql, QStringList keys, QStringList bindings);
     QList<QVariantMap> query(QString sql, QStringList keys, QVariantList bindings);
 
-
-    //static会报错？操，用的实例方式访问的
-    //也不对，改成静态方式仍提示DB::conn undefined
-    //static QSqlDatabase conn;
     QSqlDatabase conn;
-
-    //static qint32 errorCode;
-    //static QString errorMsg;
 
     qint32 errorCode = 0;
     QString errorMsg = "";
@@ -135,8 +105,6 @@ private:
 
     //QSqlQuery query;
     QSqlQuery* q;
-
-
 };
 
 #endif // DB_H

@@ -53,28 +53,24 @@ void DB::setConn(QString connectionName)
 {
     QString driver = "QSQLITE";
 
-    // 目录要改成程序所在目录，开发期间为了方便放在E盘
-
-    //QString dbPath = QDir::currentPath();
     QString dbPath;
     dbPath = QCoreApplication::applicationDirPath();
     //dbPath = "E:";
 
     //QString dbName = "test.db";
-    //QString dbName = "setttings.db";
-    QString dbName = "../setttings.db";
+    QString dbName = "setttings.db";
+    //QString dbName = "../setttings.db";
 
     QString dbFullPath = dbPath + "/" + dbName;
 
 
-    qDebug() << "db path: " << dbFullPath;
+    //qDebug() << "db path: " << dbFullPath;
+    //qDebug() << __FUNCTION__;
 
-    qDebug() << __FUNCTION__;
     if(connectionName.size() == 0){
         //db.conn = QSqlDatabase::addDatabase(driver);
         conn = QSqlDatabase::addDatabase(driver);
     }else{
-        //conn = QSqlDatabase::addDatabase(driver, connectionName);
         conn = QSqlDatabase::addDatabase(driver, "conn_" + connectionName);
     }
 
@@ -89,18 +85,10 @@ void DB::setConn(QString connectionName)
 
 
     if(!conn.open()){
-        //if(!DB::conn.open()){
-
         errorCode = 1001;
-        //db.errorMsg = "错误：" + QString(db.errorCode) + "; 连接数据库失败：" + db.conn.lastError().text();
         errorMsg = "错误：" + QString(errorCode) + "; 连接数据库失败：" + conn.lastError().text();
-
-        //return 1001;
-        //return;
-        //return db;
     }
 }
-
 
 
 bool DB::exec(QString sql)
@@ -122,10 +110,9 @@ bool DB::exec(QString sql, QVariantMap data)
 bool DB::exec(QString sql, QList<QVariantMap> datas)
 {
 
-    qDebug() << __FILE__ << ": " << __LINE__;
-    qDebug() << sql;
+    //qDebug() << __FILE__ << ": " << __LINE__;
+    //qDebug() << sql;
 
-    //QList<QVariantList> bindVals;
     QMap<QString, QVariantList> bindVals;
     QVariantList vals;
 
@@ -148,7 +135,6 @@ bool DB::exec(QString sql, QList<QVariantMap> datas)
 
     QMap<QString, QVariant> item;
     foreach(item, datas){
-            //QVariantList val;
             QMap<QString, QVariant>::const_iterator ir = item.constBegin();
             while(ir != item.constEnd()){
                 bindVals[ir.key()] << ir.value();
@@ -164,10 +150,10 @@ bool DB::exec(QString sql, QList<QVariantMap> datas)
 
     QString key;
     foreach(key, bindKeys){
-            qDebug() << "key: " << key;
-        //q->bindValue(":" + key, bindVals[key]);
-        q->bindValue(standardBinding(key), bindVals[key]);
-        //q->bindValue(DB::standardBinding(key), bindVals[key]);
+            //qDebug() << "key: " << key;
+            //q->bindValue(":" + key, bindVals[key]);
+            q->bindValue(standardBinding(key), bindVals[key]);
+            //q->bindValue(DB::standardBinding(key), bindVals[key]);
     }
 
     /*
@@ -275,10 +261,10 @@ QList<QVariantList> DB::query(QString sql, bool placeholder, QList<QString> bind
 
 QList<QVariantMap> DB::fetch(QStringList keys)
 {
-    qDebug() << __FUNCTION__;
+    //qDebug() << __FUNCTION__;
     QList<QVariantMap> datas;
     qint32 length = keys.length();
-    qDebug() << "key length: " << length;
+    //qDebug() << "key length: " << length;
     while(q->next()){
         QVariantMap data;
         QString key;
