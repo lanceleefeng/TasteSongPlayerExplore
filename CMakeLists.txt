@@ -22,6 +22,7 @@ find_package(Qt5Sql REQUIRED)
 #find_package(Qt5SqlDatabase)
 
 
+
 add_executable(TasteSongExplore02 ${SOURCE_FILES})
 #target_link_libraries(TasteSongExplore02 Qt5::Core Qt5::Widgets Qt5::Gui)
 #target_link_libraries(TasteSongExplore02 Qt5::Core Qt5::Widgets Qt5::MultiMedia Qt5::MultiMediaWidgets Qt5::Sql)
