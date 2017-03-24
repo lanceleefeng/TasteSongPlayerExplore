@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("OneNet Inc.");
     QCoreApplication::setApplicationVersion("0.1");
 
-
     DBInit dbInit;
     if(!dbInit.succeed()){
         //qDebug() << DB::instance().error();
@@ -44,10 +43,8 @@ int main(int argc, char *argv[])
     player.show();
 #endif
 
-
     // player initiation finished
     player.initiated = true;
-
 
     // 添加右键“打开方式”支持，双击打开（关联格式之后）
     // right click "open with" & double click(after association)
@@ -73,7 +70,6 @@ int main(int argc, char *argv[])
         player.addToPlaylist(files, true);
 
     }
-
 
     QString codecPath = QCoreApplication::applicationDirPath();
     //QString codecPath = QCoreApplication::applicationDirPath() + "/XLDapCodecsLite_5.2.3.4962";
