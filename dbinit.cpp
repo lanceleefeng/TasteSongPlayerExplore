@@ -1,12 +1,4 @@
 #include <QtSql>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
-
-#include <QCoreApplication>
-#include <QDir>
-
-#include <QDebug>
 
 #include "db.h"
 #include "dbinit.h"
@@ -27,6 +19,7 @@ DBInit::DBInit()
             "name varchar(200) default '',"
             "path varchar(255) default '',"
             "md5 char(32) default '',"
+            "skip tinyint default 0,"
             "sort mediumint default 0,"
             "volume mediumint  default 0,"
             "created_at text,"
@@ -56,7 +49,7 @@ DBInit::DBInit()
     }
 
     m_success = true;
-    qDebug() << "init success: " << m_success;
+    //qDebug() << "init success: " << m_success;
 }
 
 DBInit::~DBInit()

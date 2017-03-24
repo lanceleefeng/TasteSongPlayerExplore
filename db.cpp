@@ -58,8 +58,8 @@ void DB::setConn(QString connectionName)
     //dbPath = "E:";
 
     //QString dbName = "test.db";
-    QString dbName = "setttings.db";
-    //QString dbName = "../setttings.db";
+    //QString dbName = "setttings.db";
+    QString dbName = "../setttings.db";
 
     QString dbFullPath = dbPath + "/" + dbName;
 
