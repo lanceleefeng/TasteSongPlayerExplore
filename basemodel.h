@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 2017-3-14.
-//
-
 #ifndef BASEMODEL_H
 #define BASEMODEL_H
 
@@ -21,6 +17,5 @@ public:
     int uid = 1; // 会员ID，保存设置时作为主键用，实际上并没有登录、注册
 
 };
-
 
 #endif //BASEMODEL_H
