@@ -12,15 +12,15 @@ MusicModel::MusicModel()
 }
 
 
-QList<QMap<QString, QVariant>> MusicModel::getSongs()
+QList<QVariantMap> MusicModel::getSongs()
 {
 
     static DB& db = DB::instance();
 
-    QString sql = QString("SELECT id,name,path,sort,volume, updated_at FROM %1 ORDER BY sort ASC").arg(m_table);
+    QString sql = QString("SELECT id,name,path,sort,volume, skip, updated_at FROM %1 ORDER BY sort ASC").arg(m_table);
 
     QStringList keys;
-    keys << "id" << "name" << "path" << "sort" << "volume";
+    keys << "id" << "name" << "path" << "sort" << "volume" << "skip";
 
     //QList<QMap<QString, QVariant>> datas = query(sql);
     QList<QMap<QString, QVariant>> datas = db.query(sql, keys);
