@@ -33,8 +33,6 @@ public:
     void setPlaylist(QMediaPlaylist *playlist);
     
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole);
-    
-    
 
 private slots:
     void beginInsertItems(int start, int end);
@@ -50,6 +48,5 @@ private:
     QMap<QModelIndex, QVariant> m_data;
     
 };
-
 
 #endif // PLAYLISTMODEL_H

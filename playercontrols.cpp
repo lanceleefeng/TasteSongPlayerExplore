@@ -1,4 +1,3 @@
-
 #include <QBoxLayout>
 #include <QSlider>
 #include <QStyle>
@@ -6,7 +5,7 @@
 #include <QComboBox>
 #include <QMediaPlaylist>
 #include <QAudio>
-
+#include <QTimer>
 
 #include "playercontrols.h"
 #include "settingmodel.h"
@@ -26,8 +25,7 @@ PlayerControls::PlayerControls(QWidget *parent)
     , rateBox(0)
     
 {
-    
-    
+
     playButton = new QToolButton(this);
     playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     
@@ -54,8 +52,7 @@ PlayerControls::PlayerControls(QWidget *parent)
     previousButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
     
     connect(previousButton, SIGNAL(clicked()), this, SIGNAL(previous()));
-    
-    
+
     muteButton = new QToolButton(this);
     muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
     
@@ -78,8 +75,7 @@ PlayerControls::PlayerControls(QWidget *parent)
     // 默认播放模式是列表循环
     // modeBox->setCurrentIndex(0);
     // modeBox->setCurrentIndex(QMediaPlaylist::Loop);
-    
-    
+
     // 原来使用currentIndexChanged更合适
     // activated只要选择了，即使没有改变，也会触发
     // 而currentIndexChanged只有改变了才会触发。
@@ -102,10 +98,7 @@ PlayerControls::PlayerControls(QWidget *parent)
     
     // layout->addWidget(pauseButton);
     
-    
     setLayout(layout);
-    
-    
 }
 
 
@@ -117,9 +110,7 @@ QMediaPlayer::State PlayerControls::state() const
 void PlayerControls::setState(QMediaPlayer::State state)
 {
     if(state != playerState){
-        
         //qDebug() << "New State: " << state;
-        
         playerState = state;
         
         switch(state){
@@ -137,9 +128,7 @@ void PlayerControls::setState(QMediaPlayer::State state)
             playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
             break;
         }
-        
     }
-    
 }
 
 
@@ -163,7 +152,6 @@ void PlayerControls::setVolume(int volume)
 //void PlayerControls::setMode(QMediaPlaylist::PlaybackMode mode)
 void PlayerControls::setMode(int index)
 {
-    //int index = (int)mode;
     modeBox->setCurrentIndex(index);
 }
 
@@ -174,7 +162,6 @@ void PlayerControls::setMuted(bool muted)
         
         QStyle::StandardPixmap icon = muted ? QStyle::SP_MediaVolumeMuted : QStyle::SP_MediaVolume;
         muteButton->setIcon(style()->standardIcon(icon));
-        
     }
 }
 
@@ -230,9 +217,9 @@ void PlayerControls::modeChanged(){
 }
 
 void PlayerControls::saveMode(){
-    qDebug() << __FUNCTION__ << " called";
+    //qDebug() << __FUNCTION__ << " called";
     if(!initiated){
-        qDebug() << "initiating...: " << __FUNCTION__;
+        //qDebug() << "initiating...: " << __FUNCTION__;
         return;
     }
     if(timerSaveMode){
@@ -244,9 +231,7 @@ void PlayerControls::saveMode(){
 
 void PlayerControls::doSaveMode()
 {
-    qDebug() << __FUNCTION__ << " called";
-    //只能保存一次，后边不调用doSaveMode()，原来是标记用错了
-    //timerSaveVolume = false;
+    //qDebug() << __FUNCTION__ << " called";
     timerSaveMode = false;
 
     SettingModel settingModel;
@@ -256,9 +241,9 @@ void PlayerControls::doSaveMode()
 
 void PlayerControls::saveVolume()
 {
-    qDebug() << __FUNCTION__ << " called";
+    //qDebug() << __FUNCTION__ << " called";
     if(!initiated){
-        qDebug() << "initiating...: " << __FUNCTION__;
+        //qDebug() << "initiating...: " << __FUNCTION__;
         return;
     }
 
@@ -271,7 +256,7 @@ void PlayerControls::saveVolume()
     QTimer::singleShot(3000, this, SLOT(doSaveVolume()));
 }
 void PlayerControls::doSaveVolume(){
-    qDebug() << __FUNCTION__ << " called";
+    //qDebug() << __FUNCTION__ << " called";
     timerSaveVolume = false;
 
     SettingModel setting;

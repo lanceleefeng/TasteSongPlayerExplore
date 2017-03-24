@@ -33,7 +33,6 @@ SOURCES += main.cpp\
     player.cpp \
     videowidget.cpp \
     playercontrols.cpp \
-    histogramwidget.cpp \
     playlistmodel.cpp \
     db.cpp \
     musicmodel.cpp \
@@ -45,7 +44,6 @@ HEADERS  += \
     player.h \
     videowidget.h \
     playercontrols.h \
-    histogramwidget.h \
     playlistmodel.h \
     db.h \
     musicmodel.h \

@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 2017-3-15.
-//
-
 #ifndef SETTINGMODEL_H
 #define SETTINGMODEL_H
 
@@ -24,6 +20,5 @@ public:
     QString table = "settings";
 
 };
-
 
 #endif //SETTINGMODEL_H

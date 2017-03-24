@@ -1,6 +1,3 @@
-//
-// Created by Administrator on 2017-3-15.
-//
 
 #include "settingmodel.h"
 #include "basemodel.h"
@@ -126,8 +123,8 @@ bool SettingModel::saveSetting(QVariantMap data)
         data["uid"] = uid;
     }
 
-    qDebug() << __FUNCTION__;
-    qDebug() << "save sql: " << sql;
+    //qDebug() << __FUNCTION__;
+    //qDebug() << "save sql: " << sql;
     return DB::instance().exec(sql, data);
 
 }

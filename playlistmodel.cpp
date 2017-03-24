@@ -6,14 +6,12 @@
 #include "playlistmodel.h"
 
 
-
 PlaylistModel::PlaylistModel(QObject *parent)
     : QAbstractItemModel(parent)
     , m_playlist(0)
 {
     
 }
-
 
 QMediaPlaylist *PlaylistModel::playlist() const
 {
@@ -43,9 +41,7 @@ void PlaylistModel::setPlaylist(QMediaPlaylist *playlist)
     }
     
     endResetModel();
-    
 }
-
 
 
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -142,10 +138,5 @@ void PlaylistModel::changeItems(int start, int end)
     m_data.clear();
     emit dataChanged(index(start, 0), index(end, ColumnCount));
 }
-
-
-
-
-
 
 

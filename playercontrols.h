@@ -57,14 +57,12 @@ private slots:
     //void saveMode(QMediaPlaylist::PlaybackMode mode);
     //void saveVolume(int volume);
 
-
     void doSaveMode();
     void doSaveVolume();
 
 private:
     void saveMode();
     void saveVolume();
-
 
     QMediaPlayer::State playerState;
     bool playerMuted;
