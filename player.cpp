@@ -8,12 +8,11 @@
 
 #include "playercontrols.h"
 #include "playlistmodel.h"
-#include "histogramwidget.h"
+//#include "histogramwidget.h"
 
 #include "db.h"
 #include "musicmodel.h"
 #include "settingmodel.h"
-
 
 Player::Player(QWidget *parent)
     : QWidget(parent)
@@ -28,17 +27,18 @@ Player::Player(QWidget *parent)
     playlist = new QMediaPlaylist();
     player->setPlaylist(playlist);
     
-
     SettingModel settingModel;
     QVariantMap setting = settingModel.getSetting();
 
+    /*
+    // 查看设置
     qDebug() << __FILE__ << ", " << __LINE__ << ": ";
     qDebug() << __FUNCTION__;
     QMapIterator<QString, QVariant> i(setting);
     while(i.hasNext()){
         i.next();
         qDebug() << i.key() << ": " << i.value();
-    }
+    }*/
 
     //playlist->setPlaybackMode(QMediaPlaylist::Loop);
     if(!setting.isEmpty()){
@@ -87,19 +87,19 @@ Player::Player(QWidget *parent)
     // QPushButton *openButton = new QPushButton(tr("打开"), this);
     QPushButton *openButton = new QPushButton(tr("添加"), this);
     connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
-    
-    
-    PlayerControls *controls = new PlayerControls(this);
+
+
     //PlayerControls controls = new PlayerControls(this);
+    PlayerControls *controls = new PlayerControls(this);
 
     controls->setState(player->state());
     //controls->setMode(playlist->playbackMode());
     controls->setMode(int(playlist->playbackMode()));
     controls->setVolume(player->volume());
     controls->setMuted(player->isMuted());
-    
+
+
     // controls中的playButton触发play() SIGNAL，要再绑定到player的play() SLOT，才能最终播放！
-    
     
     connect(controls, SIGNAL(play()), player, SLOT(play()));
     connect(controls, SIGNAL(pause()), player, SLOT(pause()));
@@ -164,9 +164,7 @@ Player::Player(QWidget *parent)
     controlLayout->addWidget(openButton);
     controlLayout->addStretch(1);
     controlLayout->addWidget(controls);
-    
-    
-    
+
     controlLayout->addStretch(1);
     controlLayout->addWidget(fullScreenButton);    
     controlLayout->addWidget(colorButton);
@@ -182,11 +180,8 @@ Player::Player(QWidget *parent)
     layout->addLayout(hLayout);
     layout->addLayout(controlLayout);
     // layout->addLayout(histogramLayout);
-    
-    
+
     setLayout(layout);
-    
-    
     metaDataChanged();
     
     //m_datas = DB::instance().getSongs();
@@ -197,27 +192,28 @@ Player::Player(QWidget *parent)
     QMap<QString, QVariant> item;
     foreach(item, m_datas){
         QString path = item["path"].toString();
-        // qDebug() << item[]
-        m_index_path.append(path);
-        songs.append(QUrl::fromLocalFile(path));
-        
+
         if(m_max_sort < item["sort"].toInt()){
             m_max_sort = item["sort"].toInt();
         }
-        
+
+        //songs.append(QUrl::fromLocalFile(path));
+        if(item["skip"].toInt() == 0){
+            songs.append(QUrl::fromLocalFile(path));
+            m_index_path.append(path);
+        }
+
     }
     
     m_max_sort = m_max_sort > m_index_path.size() ? m_max_sort : m_index_path.size();
     
-    qDebug() << "最大排序数：" << m_max_sort;
+    //qDebug() << "最大排序数：" << m_max_sort;
     // addToPlaylist(songs, false, false);
     //addToPlaylist(m_index_path, false, false);
     addToPlaylist(m_index_path, false);
 
-
     setAcceptDrops(true); // 启用拖放
 
-    //controls.initiated = true;
     controls->initiated = true; // 完成初始化
 
 }
@@ -247,9 +243,12 @@ void Player::dropEvent(QDropEvent *event)
 
     QStringList files;
     QUrl url;
+    QString path;
     foreach(url, urls){
-            qDebug() << url.path();
-            files << url.path();
+            path = url.path();
+            path = path.remove(0, 1);
+            //qDebug() << path;
+            files << path;
         }
 
     addToPlaylist(files, true);
@@ -272,8 +271,7 @@ void Player::open()
     fileDialog.setFileMode(QFileDialog::ExistingFiles);
     
     // 视频目录: QStandardPaths::MoviesLocation 
-    // fileDialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).value(0, QDir::homePath()));
-    // 音乐目录：QStandardPaths::MusicLocation 
+    // 音乐目录：QStandardPaths::MusicLocation
     fileDialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).value(0, QDir::homePath()));
     
     if(fileDialog.exec() == QDialog::Accepted){
@@ -301,29 +299,18 @@ static bool isPlaylist(const QUrl &url) // .m3u playlists
 //void Player::addToPlaylist(const QStringList files, bool beginToPlay, bool addToDb)
 void Player::addToPlaylist(const QStringList files, bool beginToPlay)
 {
-
-    qDebug() << __FUNCTION__ << " called";
+    //qDebug() << __FUNCTION__ << " called";
     if(!initiated){
-        qDebug() << "initiating...: " << __FUNCTION__;
+        //qDebug() << "initiating...: " << __FUNCTION__;
     }
 
     QList<QMap<QString, QVariant>> newSongs;
     qint16 newCount = 0;
-    //qint16 newIndex = -1;
     int newIndex = -1;
 
-    // foreach(const QString file, files){
-    // foreach(const QString &file, files){
     foreach(QString file, files){
-        
-        // error: passing 'const QString' as 'this' argument discards qualifiers [-fpermissive]
-        
-        // file = file.replace("\\", "/");
-        // file = file.replace(QString("\\"), QString("/"));
-        // qDebug() << file;
         file.replace(QString("\\"), QString("/"));
         // qDebug() << file;
-        
         
         QFileInfo fi(file);
         qint32 index = m_index_path.indexOf(file);
@@ -347,14 +334,11 @@ void Player::addToPlaylist(const QStringList files, bool beginToPlay)
             qDebug() << m_max_sort;
 
             QMap<QString, QVariant> newSong;
-            
-            
-            //newSong["playlist_id"] = 0;
+
             newSong["pid"] = 0;
             newSong["path"] = file;
             newSong["name"] = fi.baseName();
             newSong["sort"] = m_max_sort;
-            
             
             newSongs.append(newSong);
             m_index_path.append(file);
@@ -368,12 +352,7 @@ void Player::addToPlaylist(const QStringList files, bool beginToPlay)
         QUrl url = QUrl::fromLocalFile(file);
         playlist->addMedia(url);
     }
-    
-    
-    // QMessageBox::information(0, QString("播放序号："), newIndex);
-    // QMessageBox::information(0, QString("播放序号："), newIndex.toString());
-    // QMessageBox::information(0, QString("播放序号"), QString("%1").arg(newIndex));
-    
+
     if(0 <= newIndex){
         playlist->setCurrentIndex(newIndex);
     }
@@ -389,39 +368,6 @@ void Player::addToPlaylist(const QStringList files, bool beginToPlay)
         musicModel.addSongs(newSongs);
     }
 }
-
-
-
-/*
-// void Player::addToPlaylist(QList<QUrl> urls)
-// void Player::addToPlaylist(const QList<QUrl> urls, bool beginToPlay)
-void Player::addToPlaylist(const QList<QUrl> urls, bool beginToPlay, bool addToDb)
-{
-    
-    foreach(const QUrl &url, urls){
-        
-        qDebug() << url.path();
-        
-        if(isPlaylist(url)){
-            qDebug() << "is playlist";
-            playlist->load(url);
-        }else{
-            qDebug() << "is not playlist";
-            playlist->addMedia(url);
-        }
-    }
-    
-    
-    // 右键打开、双击打开、或软件中打开，添加这一行就开始播放了
-    // player->play();
-    if(beginToPlay){
-        player->play();
-    }
-    
-    
-}
-*/
-
 
 void Player::next()
 {
@@ -450,14 +396,7 @@ void Player::previous()
 
 void Player::playNext(QString direction)
 {
-    
-    
-    
-    // error: cannot convert 'QMediaPlaylist::playbackMode' from type 'QMediaPlaylist::PlaybackMode (QMediaPlaylist::)() const' to type 'const QMediaPlaylist::PlaybackMode'
-    // QMediaPlaylist::PlaybackMode currentMode = playlist->playbackMode;
-    
-    // const QMediaPlaylist::PlaybackMode currentMode = playlist->playbackMode;
-    
+
     // QMediaPlaylist的playbackMode属性不能直接读取？
     // 用playbckMode()方法获取，用setPlaybackMode(mode)设置
     
@@ -474,8 +413,7 @@ void Player::playNext(QString direction)
     default:
         switchMode = false;
     }
-    
-    
+
     if(switchMode){
         playlist->setPlaybackMode(QMediaPlaylist::Loop);
     }
@@ -500,7 +438,6 @@ void Player::jump(const QModelIndex &index)
     }
 }
 
-
 void Player::seek(int seconds)
 {
     player->setPosition(seconds * 1000);
@@ -510,7 +447,6 @@ void Player::playlistPositionChanged(int currentItem)
 {
     playlistView->setCurrentIndex(playlistModel->index(currentItem, 0));
 }
-
 
 void Player::durationChanged(qint64 duration)
 {
@@ -526,37 +462,16 @@ void Player::positionChanged(qint64 progress)
     updateDurationInfo(progress/1000);
 }
 
-
-
-
-
 void Player::setMode(int mode)
 {
-
-    int m = 1;
-    //QMediaPlaylist::PlaybackMode md = m;
-    QMediaPlaylist::PlaybackMode md = (QMediaPlaylist::PlaybackMode)m;
-
-    qDebug() << "m: " << m;
-    qDebug() << "md: " << md;
-
-    m = 10;
-    md = (QMediaPlaylist::PlaybackMode) m;
-
-    qDebug() << "m: " << m;
-    qDebug() << "md: " << md;
-
-
-
-    // int 还真不能直接当作 QMediaPlaylist::PlaybackMode啊
-    // playlist->setPlaybackMode(mode);
-    // invalid conversion from 'int' to 'QMediaPlaylist::PlaybackMode' [-fpermissive]
-    //  playlist->setPlaybackMode(mode);
-    
     QMediaPlaylist::PlaybackMode playbackMode;
+    if(mode >= 0 && mode <= 4){
+        playbackMode = (QMediaPlaylist::PlaybackMode)mode;
+    }else{
+        playbackMode = QMediaPlaylist::Loop;
+    }
 
-
-    switch(mode){
+    /*switch(mode){
     case 0:
         playbackMode = QMediaPlaylist::CurrentItemOnce;
         break;
@@ -571,14 +486,12 @@ void Player::setMode(int mode)
         break;
     default:
         playbackMode = QMediaPlaylist::Sequential;
-    }
+    }*/
     
-    qDebug() << "set mode: " << playbackMode;
-    
+    //qDebug() << "set mode: " << playbackMode;
     playlist->setPlaybackMode(playbackMode);
     
 }
-
 
 void Player::metaDataChanged()
 {
@@ -589,11 +502,8 @@ void Player::metaDataChanged()
         
         if(coverLabel){
             QUrl url = player->metaData(QMediaMetaData::CoverArtUrlLarge).value<QUrl>();
-            
             coverLabel->setPixmap(!url.isEmpty() ? QPixmap(url.toString()) : QPixmap());
-            
         }
-        
     }
 }
 
@@ -618,4 +528,3 @@ void Player::updateDurationInfo(qint64 currentInfo)
     }
     labelDuration->setText(tStr);
 }
-
