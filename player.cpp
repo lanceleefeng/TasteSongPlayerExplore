@@ -4,6 +4,12 @@
 #include <QMediaMetaData>
 #include <QtWidgets>
 
+#include <QCloseEvent>
+#include <QFile>
+//#include <QDir>
+#include <QCoreApplication>
+
+
 #include "player.h"
 
 #include "playercontrols.h"
@@ -220,6 +226,34 @@ Player::Player(QWidget *parent)
 
 Player::~Player()
 {
+}
+
+
+void Player::closeEvent(QCloseEvent *event)
+{
+
+    delPid();
+
+}
+
+void Player::delPid()
+{
+    QString pidFile;
+    //QString pidFile = "pid";
+    //QString pidFile = QDir::currentPath() + "/pid";
+
+    pidFile = QCoreApplication::applicationDirPath() + "/pid";
+
+    QFile pidObj(pidFile);
+
+    qDebug() << pidFile;
+    if(pidObj.exists()){
+        qDebug() << "pid文件存在";
+        QFile::remove(pidFile);
+    }else{
+        qDebug() << "pid文件不存在";
+    }
+
 }
 
 bool Player::isPlayerAvailable() const 

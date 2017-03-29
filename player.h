@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QCloseEvent>
 
 
 #include "videowidget.h"
@@ -30,6 +31,7 @@ class Player : public QWidget
 public:
     Player(QWidget *parent = 0);
     ~Player();
+    void closeEvent(QCloseEvent *event); // 关闭事件
     
     bool isPlayerAvailable() const;
     
@@ -45,6 +47,8 @@ public:
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+
+    void delPid();
 
 private slots:
     void open();
