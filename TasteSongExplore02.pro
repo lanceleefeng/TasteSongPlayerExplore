@@ -49,7 +49,8 @@ HEADERS  += \
     musicmodel.h \
     dbinit.h \
     basemodel.h \
-    settingmodel.h
+    settingmodel.h \
+    tools.h
 
 
 RC_ICONS="TasteSong6.ico"
