@@ -15,6 +15,23 @@
 ## 跨平台
 由于最后加入的单窗口运行使用了windows API，没有做跨平台处理，最新的dev分支已不能在非win平台编译。
 
+## 格式支持！
+播放高清音质的MP3需要另外安装LAV Filters或其它解码器。其它格式是否需要LAV未知。
+
+
+### LAV Filters
+
+进入页面下载：  
+LAV Filters - DirectShow Media Splitter and Decoders - Doom9's Forum
+http://forum.doom9.org/showthread.php?t=156191
+Releases · Nevcairiel/LAVFilters
+https://github.com/Nevcairiel/LAVFilters/releases
+
+或直接点击 exe 文件链接下载：  
+https://files.1f0.de/lavf/LAVFilters-0.69.exe
+https://github.com/Nevcairiel/LAVFilters/releases/download/0.69/LAVFilters-0.69-Installer.exe
+
+
 ## 后续项目
 项目本身只是为了学习Qt，实现基本的播放器功能，后续较完整功能的播放器，在另一个项目中：
 
