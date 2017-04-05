@@ -3,6 +3,7 @@
 #include <QVideoProbe>
 #include <QMediaMetaData>
 #include <QtWidgets>
+#include <QShortcut>
 
 #include <QCloseEvent>
 #include <QFile>
@@ -94,6 +95,10 @@ Player::Player(QWidget *parent)
     QPushButton *openButton = new QPushButton(tr("添加"), this);
     connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
 
+    //http://doc.qt.io/qt-5.8/qshortcut.html#details
+    //shortcut = new QShortcut(QKeySequence(tr("Ctrl+O", "File|Open")), parent);
+    QShortcut *openShortcut = new QShortcut(QKeySequence(tr("Ctrl+O", "File|Open")), openButton);
+    connect(openShortcut, SIGNAL(activated()), openButton, SIGNAL(clicked()));
 
     //PlayerControls controls = new PlayerControls(this);
     PlayerControls *controls = new PlayerControls(this);
