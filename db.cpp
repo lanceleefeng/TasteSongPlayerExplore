@@ -9,6 +9,8 @@
 #include <QUrl>
 #include <QMap>
 
+#include <QStandardPaths>
+#include <QDir>
 
 
 #include "db.h"
@@ -57,14 +59,18 @@ void DB::setConn(QString connectionName)
     dbPath = QCoreApplication::applicationDirPath();
     //dbPath = "E:";
 
+    QString appLocalDataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    if(!appLocalDataPath.isEmpty()){
+        dbPath = appLocalDataPath;
+    }
+
     //QString dbName = "test.db";
-    //QString dbName = "setttings.db";
-    QString dbName = "../setttings.db";
+    QString dbName = "setttings.db";
+    //QString dbName = "../setttings.db";
 
     QString dbFullPath = dbPath + "/" + dbName;
 
-
-    //qDebug() << "db path: " << dbFullPath;
+    qDebug() << "db path: " << dbFullPath;
     //qDebug() << __FUNCTION__;
 
     if(connectionName.size() == 0){

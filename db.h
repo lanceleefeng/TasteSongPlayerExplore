@@ -9,6 +9,7 @@
 #include <QList>
 #include <QUrl>
 #include <QMap>
+#include <QStandardPaths>
 
 // #include <QDebug>
 

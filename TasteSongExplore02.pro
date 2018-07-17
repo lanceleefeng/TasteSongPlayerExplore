@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     musicmodel.cpp \
     dbinit.cpp \
     basemodel.cpp \
-    settingmodel.cpp
+    settingmodel.cpp \
+    config.cpp
 
 HEADERS  += \
     player.h \
@@ -50,7 +51,8 @@ HEADERS  += \
     dbinit.h \
     basemodel.h \
     settingmodel.h \
-    tools.h
+    tools.h \
+    config.h
 
 
 RC_ICONS="TasteSong6.ico"

@@ -4,5 +4,6 @@
 .idea/TasteSongExplore02.iml
 .idea/workspace.xml
 
+cmake-build-debug
 cmake-build-debug/*
 

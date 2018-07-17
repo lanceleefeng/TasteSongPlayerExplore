@@ -36,7 +36,7 @@
 //public static QLockFile lock;
 //static QLockFile lock; // 是一种实例化方式
 static QLockFile *lock; // 只是定义一个指针
-
+static QString dataPath;
 
 
 int main(int argc, char *argv[])
@@ -47,8 +47,22 @@ int main(int argc, char *argv[])
     // QCoreApplication::setApplicationName(tr("TasteSong Explore 02"));
     QCoreApplication::setApplicationName(QObject::tr("TasteSong Explore 02"));
     
-    QCoreApplication::setOrganizationName("OneNet Inc.");
+    //QCoreApplication::setOrganizationName("OneNet Inc.");
+    QCoreApplication::setOrganizationName("OneNet");
     QCoreApplication::setApplicationVersion("0.1");
+
+    // 系统APPLOCALDATA + 组织名/应用名
+    dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+
+    if(!dataPath.isEmpty()){
+        QDir dirObj(dataPath);
+        if(!dirObj.exists()){
+            qDebug() << "目录不存在：" << dataPath;
+            dirObj.mkpath(dataPath);
+        }else{
+            qDebug() << "目录存在：" << dataPath;
+        }
+    }
 
     DBInit dbInit;
     if(!dbInit.succeed()){
@@ -85,23 +99,8 @@ int main(int argc, char *argv[])
     }
 
 
-
-    QString file = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("walking.lock");
-    //QFile fileObj;
-    //fileObj.setFileName(file);
-
-    QFile fileObj(file);
-    if(!fileObj.exists()){
-        qDebug() << "文件不存在：" << file;
-        fileObj.open(QIODevice::ReadWrite);
-        //fileObj.open(QIODevice::Append);
-        fileObj.write("walking through the green fields"); // 会覆盖原有文件
-        //fileObj.append();
-        fileObj.close();
-    }else{
-        qDebug() << "文件存在：" << file;
-    }
-
+    //QString file = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("walking.lock");
+    QString file = QString("%1/%2").arg(dataPath).arg("walking.lock");
 
     //EnumWindows((WNDENUMPROC)EnumWindowsProc, 0);
 
@@ -112,23 +111,20 @@ int main(int argc, char *argv[])
     return -2;
     */
 
-    // 就没有必要在退出程序中加去掉锁定的代码了，不过还是试试能不能加
-
 
     DWORD processId = GetCurrentProcessId();
-    QString pidFile = QCoreApplication::applicationDirPath() + "/pid";
+    //QString pidFile = QCoreApplication::applicationDirPath() + "/pid";
+    QString pidFile = dataPath + "/pid";
 
-    //QString pid = QString(processId);
-    //QString pid = processId.toString();
 
+    // QLockFile::tryLock本身会创建文件，不需要提前创建
+    // 自动创建的文件会写入pid、项目名称、系统名称
 
     //QLockFile lock(file);
     QLockFile *lock = new QLockFile(file);
 
-
     while(true) {
-        //lock.lock();
-        //bool result = lock.tryLock(50);
+
         bool result = lock->tryLock(50);
         QFile pidObj(pidFile);
 
@@ -137,12 +133,11 @@ int main(int argc, char *argv[])
             qDebug() << "新进程ID：" << processId;
 
             pidObj.open(QFile::WriteOnly | QFile::Truncate);
-            //pidObj.write(QString("%s").arg(processId));
-            //pidObj.write(pid);
+
+
             QTextStream out(&pidObj);
             out << processId;
-            //out << "\n";
-            //out << "test";
+
             pidObj.close();
 
             // 这儿好像新窗口还没有建立？
@@ -157,6 +152,7 @@ int main(int argc, char *argv[])
             break;
 
         } else {
+
             qDebug() << "没有获得锁：" << file;
 
             // 读取已打开窗口对应进程的pid
@@ -231,6 +227,11 @@ int main(int argc, char *argv[])
     player.show();
 #endif
 
+
+    //player.setGeometry(100, 200, 700, 300);
+    //player.showFullScreen();
+    player.showMaximized();
+    
     // player initiation finished
     player.initiated = true;
 
