@@ -19,13 +19,14 @@
 #include "dbinit.h"
 #include "player.h"
 #include "windows.h"
-#include "tools.h";
+#include "tools.h"
 
 //#include <string>
 //#include "string.h"
 #include "Psapi.h"
-#pragma comment (lib,"Psapi.lib")
+#include "config.h"
 
+#pragma comment (lib,"Psapi.lib")
 
 
 // 看说明，QLockFile的意思，本身会创建一个文件
@@ -51,8 +52,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("OneNet");
     QCoreApplication::setApplicationVersion("0.1");
 
-    // 系统APPLOCALDATA + 组织名/应用名
-    dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    // 系统AppLocalData + 组织名/应用名
+    //dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    Config::dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    dataPath = Config::dataPath;
 
     if(!dataPath.isEmpty()){
         QDir dirObj(dataPath);
@@ -99,23 +102,14 @@ int main(int argc, char *argv[])
     }
 
 
+
     //QString file = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("walking.lock");
     QString file = QString("%1/%2").arg(dataPath).arg("walking.lock");
-
-    //EnumWindows((WNDENUMPROC)EnumWindowsProc, 0);
-
-    /*LPARAM lParam = 0;
-    EnumWindows(EnumFunc,lParam);
-
-    app.quit();
-    return -2;
-    */
 
 
     DWORD processId = GetCurrentProcessId();
     //QString pidFile = QCoreApplication::applicationDirPath() + "/pid";
     QString pidFile = dataPath + "/pid";
-
 
     // QLockFile::tryLock本身会创建文件，不需要提前创建
     // 自动创建的文件会写入pid、项目名称、系统名称
@@ -168,7 +162,6 @@ int main(int argc, char *argv[])
 
             qDebug() << "已打开播放器窗口的进程ID：" << oldPid;
 
-
             if(files.isEmpty()){
                 qDebug() << "没有参数，显示原有窗口";
                 HWND hwndOldPlayer = GetWindowHwndByPid(oldPid);
@@ -176,37 +169,7 @@ int main(int argc, char *argv[])
                 return 0;
             }else{
                 qDebug() << "有参数，关闭原有窗口";
-
-                //http://www.blogbus.com/flyxxtt-logs/43973152.html
                 killProcess(oldPid);
-
-                // qt 直接开进程调用命令太麻烦，
-                // 把命令写入bat文件，用WinExec调用
-                // http://www.cnblogs.com/wangqiguo/p/4609228.html
-
-
-                // 测试，直接干掉已打开窗口
-                // 测试结束
-
-
-                /*if(!killObj.exists()){
-                    killObj.open(QFile::WriteOnly | QFile::Truncate);
-                    QTextStream killCmd(&killObj);
-                    //killCmd << "@echo off";
-                    //killCmd << "\n";
-                    //killCmd  << "tskill " << oldPid;
-                    killCmd  << QCoreApplication::applicationDirPath() << "/tskill.exe " << oldPid;
-                    killObj.close();
-
-                    qDebug() << "kill文件：" << killFile;
-
-                    LPCSTR winKillCmd = killFile.toStdString().c_str();
-                    int resKill = WinExec(winKillCmd, SW_HIDE);
-                    qDebug() << "kill result: " << resKill;
-
-                    //Sleep(3000);
-
-                }*/
             }
 
             //Sleep(1000);
@@ -216,6 +179,7 @@ int main(int argc, char *argv[])
 
     }
 
+    Config::windowConfig();
 
 
     Player player;
@@ -235,43 +199,9 @@ int main(int argc, char *argv[])
     // player initiation finished
     player.initiated = true;
 
-
-    // 手动切换显示新窗口不是必须的
-    // 不必手动显示当前窗口
-    /*HWND hwndNewPlayer = GetWindowHwndByPid(processId);
-    if(!hwndNewPlayer){
-        qDebug() << "未能获得新窗口...";
-    }else{
-        qDebug() << "获得新窗口！";
-        // 设置还是无效，只是在任务栏的窗口会闪动..
-        // 只有试试用命令结束掉原有窗口了？？
-        // 有问题了..
-        // 任务栏上的窗口会一直闪...
-        //SetForegroundWindow(hwndNewPlayer);
-    }*/
-
-
     if(!files.isEmpty() && player.isPlayerAvailable()){
         player.addToPlaylist(files, true);
     }
-
-    /*
-    QString codecPath = QCoreApplication::applicationDirPath();
-    //QString codecPath = QCoreApplication::applicationDirPath() + "/XLDapCodecsLite_5.2.3.4962";
-    //QCoreApplication::addLibraryPath(codecPath);
-
-    QStringList paths;
-    paths << "./XLDapCodecsLite_5.2.3.4962";
-    paths << "./lavfilters";
-    QCoreApplication::setLibraryPaths(paths);
-
-    //qDebug() << "library path: ";
-    QString path;
-    foreach(path, QCoreApplication::libraryPaths()){
-            //qDebug() << path;
-        }
-
-     */
 
     return app.exec();
 }

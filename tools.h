@@ -1,6 +1,42 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+
+#include <QApplication>
+#include <QTranslator>
+
+#include <QString>
+#include <QDebug>
+#include <QVariantMap>
+
+
+
+class Tools
+{
+public:
+
+    static QApplication *app;
+    static QTranslator *translator;
+
+    static void switchLanguage(QString language);
+
+
+    static QMap<QString, QString> reverseMap(QMap<QString, QString> map);
+
+    static QString paddingZero(qint64 i, int length = 2);
+
+    /**
+     * 输出空行，打印数据
+     */
+    static void pf();
+    static void pf(int num, bool printNumber = true);
+    static void pf(QVariantMap data);
+    static void pf(QMap<QString, QString> data);
+    static void pf(QList<QVariantMap> data);
+};
+
+
+
 #include "windows.h"
 
 //枚举窗口参数
@@ -12,53 +48,11 @@ typedef struct
 } EnumWindowArg;
 
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
-{
-    EnumWindowArg * pArg = (EnumWindowArg *)lParam;
-    DWORD dwProcessId = 0;
-    DWORD dwThreadId;
-    dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
-
-    if(dwProcessId == pArg->dwProcessId){
-        pArg->hwndWindow = hwnd;
-        return FALSE;
-    }
-
-    //return true;
-    return TRUE;
-
-}
-
-HWND GetWindowHwndByPid(DWORD pid)
-{
-    HWND hwndRet = NULL;
-    EnumWindowArg ewArg;
-    ewArg.dwProcessId = pid;
-    //ewArg.hwndWindow = null; // 小写的null不能用？
-    ewArg.hwndWindow = NULL;
-
-    EnumWindows(EnumWindowsProc, (LPARAM)&ewArg);
-
-    if(ewArg.hwndWindow){
-        hwndRet = ewArg.hwndWindow;
-    }
-    return hwndRet;
-}
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
+HWND GetWindowHwndByPid(DWORD pid);
 
 
-//http://www.blogbus.com/flyxxtt-logs/43973152.html
-BOOL killProcess(DWORD processId)
-{
-    HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, processId);
-    if(hProcess == NULL){
-        return false;
-    }
-    if(TerminateProcess(hProcess, 0)){
-        return true;
-    }else{
-        return false;
-    }
-}
+BOOL killProcess(DWORD processId);
 
 
-#endif TOOLS_H
+#endif // TOOLS_H

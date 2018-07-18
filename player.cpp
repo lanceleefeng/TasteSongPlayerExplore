@@ -10,16 +10,17 @@
 //#include <QDir>
 #include <QCoreApplication>
 
-
+#include "config.h"
 #include "player.h"
-
 #include "playercontrols.h"
 #include "playlistmodel.h"
 //#include "histogramwidget.h"
 
+
 #include "db.h"
 #include "musicmodel.h"
 #include "settingmodel.h"
+
 
 Player::Player(QWidget *parent)
     : QWidget(parent)
@@ -36,6 +37,8 @@ Player::Player(QWidget *parent)
     
     SettingModel settingModel;
     QVariantMap setting = settingModel.getSetting();
+
+
 
     /*
     // 查看设置
@@ -247,7 +250,8 @@ void Player::delPid()
     //QString pidFile = "pid";
     //QString pidFile = QDir::currentPath() + "/pid";
 
-    pidFile = QCoreApplication::applicationDirPath() + "/pid";
+    //pidFile = QCoreApplication::applicationDirPath() + "/pid";
+    pidFile = Config::dataPath + "/pid";
 
     QFile pidObj(pidFile);
 

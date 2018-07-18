@@ -39,6 +39,7 @@ SOURCES += main.cpp\
     dbinit.cpp \
     basemodel.cpp \
     settingmodel.cpp \
+    tools.cpp \
     config.cpp
 
 HEADERS  += \
