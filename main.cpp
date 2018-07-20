@@ -40,7 +40,6 @@ static QLockFile *lock; // 只是定义一个指针
 static QString dataPath;
 
 
-// !!! 重新从git中克隆，新项目在 TasteSongExplore02_201807 !!!
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -199,6 +198,13 @@ int main(int argc, char *argv[])
 
 #endif
 
+    QSettings settings;
+    int width = settings.value("window/width").toInt();
+    int height = settings.value("window/height").toInt();
+
+    player.resize(width, height);
+
+    //player.setFixedWidth()
 
     // player initiation finished
     player.initiated = true;

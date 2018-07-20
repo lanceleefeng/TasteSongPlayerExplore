@@ -23,7 +23,6 @@
 #include "settingmodel.h"
 
 
-// !!! 重新从git中克隆，新项目在 TasteSongExplore02_201807 !!!
 
 Player::Player(QWidget *parent)
     : QWidget(parent)
@@ -665,6 +664,10 @@ void Player::endSaveWindowConfig()
     windowConfig["y"] = QString("%1").arg(newPos.y());
 
     Tools::pf(windowConfig);
+
+    QSettings settings;
+    settings.setValue("window/width", newSize.width());
+    settings.setValue("window/height", newSize.height());
 
 
 }
