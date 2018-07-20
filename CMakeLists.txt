@@ -29,7 +29,4 @@ find_package(Qt5Sql REQUIRED)
 
 
 add_executable(TasteSongExplore03 ${SOURCE_FILES})
-#target_link_libraries(TasteSongExplore02 Qt5::Core Qt5::Widgets Qt5::Gui)
-#target_link_libraries(TasteSongExplore02 Qt5::Core Qt5::Widgets Qt5::MultiMedia Qt5::MultiMediaWidgets Qt5::Sql)
-#target_link_libraries(TasteSongExplore02 Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Multimediawidgets Qt5::Sql)
 target_link_libraries(TasteSongExplore03 Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Sql)

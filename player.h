@@ -41,12 +41,24 @@ public:
     // void addToPlaylist(const QList<QUrl> urls, bool beginToPlay, bool addToDb);
     //void addToPlaylist(const QStringList files, bool beginToPlay, bool addToDb);
     void addToPlaylist(const QStringList files, bool beginToPlay);
+    void beginSaveWindowConfig();
 
     bool initiated = false; // 初始化标志
 
 protected:
+
+    QSize size;
+    QSize oldSize;
+
+    QPoint pos;
+    QPoint oldPos;
+
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+
+    void resizeEvent(QResizeEvent *event);
+    void moveEvent(QMoveEvent *event);
+
 
     void delPid();
 
@@ -67,6 +79,8 @@ private slots:
     void setMode(int mode);
     // void setMode(int);
 
+    void endSaveWindowConfig();
+
 
 private:
     
@@ -80,7 +94,9 @@ private:
     QLabel *coverLabel;
     QSlider *slider;
     QLabel *labelDuration;
-    
+
+    QMap<QString, QTimer *> timers;
+
     QPushButton *fullScreenButton;
     QPushButton *colorButton;
     

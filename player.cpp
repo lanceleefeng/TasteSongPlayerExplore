@@ -7,8 +7,9 @@
 
 #include <QCloseEvent>
 #include <QFile>
-//#include <QDir>
 #include <QCoreApplication>
+#include <QSettings>
+
 
 #include "config.h"
 #include "player.h"
@@ -21,6 +22,8 @@
 #include "musicmodel.h"
 #include "settingmodel.h"
 
+
+// !!! 重新从git中克隆，新项目在 TasteSongExplore02_201807 !!!
 
 Player::Player(QWidget *parent)
     : QWidget(parent)
@@ -37,7 +40,6 @@ Player::Player(QWidget *parent)
     
     SettingModel settingModel;
     QVariantMap setting = settingModel.getSetting();
-
 
 
     /*
@@ -70,7 +72,11 @@ Player::Player(QWidget *parent)
     
     videoWidget = new VideoWidget(this);
     player->setVideoOutput(videoWidget);
-    
+
+    // 启用更新，否则最大化时右侧视频区域出现画面残留
+    videoWidget->setUpdatesEnabled(true);
+
+
     playlistModel = new PlaylistModel(this);
     playlistModel->setPlaylist(playlist);
     
@@ -169,7 +175,9 @@ Player::Player(QWidget *parent)
 
     QBoxLayout *displayLayout = new QHBoxLayout;
     displayLayout->addWidget(playlistView);
+
     displayLayout->addWidget(videoWidget, 2); // videoWidget留着占位，以后改成歌词
+
     // displayLayout->addWidget(videoWidget, 1);
     // displayLayout->addWidget(playlistView);
     
@@ -228,6 +236,7 @@ Player::Player(QWidget *parent)
 
     setAcceptDrops(true); // 启用拖放
 
+
     controls->initiated = true; // 完成初始化
 
 }
@@ -250,7 +259,6 @@ void Player::delPid()
     //QString pidFile = "pid";
     //QString pidFile = QDir::currentPath() + "/pid";
 
-    //pidFile = QCoreApplication::applicationDirPath() + "/pid";
     pidFile = Config::dataPath + "/pid";
 
     QFile pidObj(pidFile);
@@ -262,6 +270,7 @@ void Player::delPid()
     }else{
         qDebug() << "pid文件不存在";
     }
+    pidObj.close();
 
 }
 
@@ -296,6 +305,8 @@ void Player::dropEvent(QDropEvent *event)
 
     addToPlaylist(files, true);
 }
+
+
 
 void Player::open()
 {
@@ -571,3 +582,91 @@ void Player::updateDurationInfo(qint64 currentInfo)
     }
     labelDuration->setText(tStr);
 }
+
+
+
+void Player::resizeEvent(QResizeEvent *event)
+{
+    // resizeEvent中最大化时isMaximized()读取的是false
+    //if(this->isMaximized()){
+    //    qDebug() << "最大化" << __FUNCTION__;
+    //}
+
+    //QSize size = event->size();
+    size = event->size();
+    oldSize = event->oldSize();
+
+    //qDebug() << "width: " << oldSize.width() << " -> " << size.width();
+    //qDebug() << "heigth: " << oldSize.height() << " -> " << size.height();
+
+    beginSaveWindowConfig();
+}
+
+void Player::moveEvent(QMoveEvent *event)
+{
+
+    pos = event->pos();
+    oldPos = event->oldPos();
+
+    //qDebug() << "x: " << oldPos.x() << " -> " << pos.x();
+    //qDebug() << "y: " << oldPos.y() << " -> " << pos.y();
+
+    beginSaveWindowConfig();
+}
+
+
+/**
+ * 延时保存
+ */
+void Player::beginSaveWindowConfig()
+{
+
+    QString key = "windowConfig";
+
+    if(!timers.contains(key)){
+        timers[key] = new QTimer();
+        timers[key]->setSingleShot(true);
+        connect(timers[key], SIGNAL(timeout()), this, SLOT(endSaveWindowConfig()));
+    }
+
+    if(timers[key]->isActive()){
+        timers[key]->stop();
+    }
+    timers[key]->start(1200);
+
+}
+
+void Player::endSaveWindowConfig()
+{
+
+    qDebug() << __FUNCTION__;
+
+    QMap<QString, QString> windowConfig;
+
+    QSize newSize;
+    QPoint newPos;
+
+    QString windowType = "";
+    if(this->isMaximized()){
+        windowType = "max";
+        newSize = oldSize;
+        newPos = oldPos;
+    }else{
+        windowType = "normal";
+        newSize = size;
+        newPos = pos;
+    }
+
+    windowConfig["windowType"] = windowType;
+
+    windowConfig["width"] = QString("%1").arg(newSize.width());
+    windowConfig["height"] = QString("%1").arg(newSize.height());
+    windowConfig["x"] = QString("%1").arg(newPos.x());
+    windowConfig["y"] = QString("%1").arg(newPos.y());
+
+    Tools::pf(windowConfig);
+
+
+}
+
+

@@ -40,6 +40,7 @@ static QLockFile *lock; // 只是定义一个指针
 static QString dataPath;
 
 
+// !!! 重新从git中克隆，新项目在 TasteSongExplore02_201807 !!!
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -47,10 +48,11 @@ int main(int argc, char *argv[])
     // QCoreApplication::setApplicationName("TasteSong Explore 02");
     // QCoreApplication::setApplicationName(tr("TasteSong Explore 02"));
     QCoreApplication::setApplicationName(QObject::tr("TasteSong Explore 02"));
-    
+    QCoreApplication::setApplicationVersion("0.1");
+
     //QCoreApplication::setOrganizationName("OneNet Inc.");
     QCoreApplication::setOrganizationName("OneNet");
-    QCoreApplication::setApplicationVersion("0.1");
+    QCoreApplication::setOrganizationDomain("onenet.wiki");
 
     // 系统AppLocalData + 组织名/应用名
     //dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
@@ -106,7 +108,6 @@ int main(int argc, char *argv[])
     //QString file = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("walking.lock");
     QString file = QString("%1/%2").arg(dataPath).arg("walking.lock");
 
-
     DWORD processId = GetCurrentProcessId();
     //QString pidFile = QCoreApplication::applicationDirPath() + "/pid";
     QString pidFile = dataPath + "/pid";
@@ -133,15 +134,6 @@ int main(int argc, char *argv[])
             out << processId;
 
             pidObj.close();
-
-            // 这儿好像新窗口还没有建立？
-            // 确实无效..
-            /*HWND hwndNewPlayer = GetWindowHwndByPid(processId);
-            if(!hwndNewPlayer){
-                qDebug() << "未能获得新窗口...";
-            }else{
-                SetForegroundWindow(hwndNewPlayer);
-            }*/
 
             break;
 
@@ -179,23 +171,35 @@ int main(int argc, char *argv[])
 
     }
 
-    Config::windowConfig();
-
-
     Player player;
-
-#if defined(Q_WS_SIMULATOR)
-    player.setAttribute(Qt::WA_LockLandscapeOrientation);
-    player.showMaximized();
-#else
-    player.show();
-#endif
 
 
     //player.setGeometry(100, 200, 700, 300);
     //player.showFullScreen();
+    //player.showMaximized();
+
+    //QMap<QString, QString> windowConfig = Config::windowConfig();
+    //if(windowConfig["windowType"] == "max"){
+    //    player.showMaximized();
+    //}else if(windowConfig["windowType"] == "min"){
+    //    player.showMinimized();
+    //}else if(windowConfig["windowType"] == "normal"){
+    //    player.setGeometry(windowConfig["x"].toInt(), windowConfig["y"].toInt(), windowConfig["width"].toInt(), windowConfig["height"].toInt());
+    //}else if(windowConfig["windowType"] == "fullscreen") {
+    //    player.showFullScreen();
+    //}
+
+#if defined(Q_WS_SIMULATOR)
+    player.setAttribute(Qt::WA_LockLandscapeOrientation);
     player.showMaximized();
-    
+
+#else
+    player.show();
+    //player.showMaximized();
+
+#endif
+
+
     // player initiation finished
     player.initiated = true;
 
@@ -204,5 +208,7 @@ int main(int argc, char *argv[])
     }
 
     return app.exec();
+
+
 }
 

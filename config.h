@@ -3,6 +3,16 @@
 
 #include <QString>
 
+#include <QStandardPaths>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+//#include <QMessageBox>
+#include <QDebug>
+
+#include "config.h"
+#include "tools.h"
+
 
 class Config
 {
@@ -24,8 +34,8 @@ public:
 
     Config();
 
-    static void windowConfig();
-    static bool saveWindowConfig();
+    //static QMap<QString, QString> windowConfig();
+    //static bool saveWindowConfig();
 
 };
 
