@@ -34,8 +34,8 @@ public:
 
     Config();
 
-    //static QMap<QString, QString> windowConfig();
-    //static bool saveWindowConfig();
+    static QMap<QString, QString> windowConfig();
+    static bool saveWindowConfig(QMap<QString, QString> data);
 
 };
 

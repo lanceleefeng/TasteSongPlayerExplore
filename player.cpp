@@ -17,7 +17,7 @@
 #include "playlistmodel.h"
 //#include "histogramwidget.h"
 
-
+#include "config.h"
 #include "db.h"
 #include "musicmodel.h"
 #include "settingmodel.h"
@@ -235,6 +235,7 @@ Player::Player(QWidget *parent)
 
     setAcceptDrops(true); // 启用拖放
 
+    setWindowInfo();
 
     controls->initiated = true; // 完成初始化
 
@@ -244,6 +245,40 @@ Player::~Player()
 {
 }
 
+void Player::setWindowInfo()
+{
+
+    QMap<QString, QString> config = Config::windowConfig();
+
+    qDebug() << __FUNCTION__;
+    Tools::pf(config);
+
+    this->resize(config["width"].toInt(), config["height"].toInt());
+    //this->move(config["x"].toInt(), config["y"].toInt());
+
+    int x, y;
+
+    y = config["y"].toInt();
+
+    if(config["x"] == "center"){
+
+        QDesktopWidget *desktop = QApplication::desktop();
+        QRect availableRect = desktop->availableGeometry();
+
+        x = (availableRect.width() - config["width"].toInt())/2;
+
+    }else{
+        x = config["x"].toInt();
+    }
+
+    this->move(x, y);
+
+    if(config["windowType"] == "max"){
+        this->showMaximized();
+    }
+
+
+}
 
 void Player::closeEvent(QCloseEvent *event)
 {
@@ -663,7 +698,9 @@ void Player::endSaveWindowConfig()
     windowConfig["x"] = QString("%1").arg(newPos.x());
     windowConfig["y"] = QString("%1").arg(newPos.y());
 
-    Tools::pf(windowConfig);
+    // 已经使用了延时保存，没必要再检查配置是否有变化了，都执行保存操作
+    Config::saveWindowConfig(windowConfig);
+    //Tools::pf(windowConfig);
 
     QSettings settings;
     settings.setValue("window/width", newSize.width());

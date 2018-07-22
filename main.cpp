@@ -190,19 +190,19 @@ int main(int argc, char *argv[])
 
 #if defined(Q_WS_SIMULATOR)
     player.setAttribute(Qt::WA_LockLandscapeOrientation);
-    player.showMaximized();
+    //player.showMaximized();
+    player.show();
+
 
 #else
     player.show();
     //player.showMaximized();
-
 #endif
 
     QSettings settings;
     int width = settings.value("window/width").toInt();
     int height = settings.value("window/height").toInt();
-
-    player.resize(width, height);
+    //player.resize(width, height);
 
     //player.setFixedWidth()
 

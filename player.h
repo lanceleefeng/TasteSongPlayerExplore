@@ -31,6 +31,8 @@ class Player : public QWidget
 public:
     Player(QWidget *parent = 0);
     ~Player();
+
+    void setWindowInfo();
     void closeEvent(QCloseEvent *event); // 关闭事件
     
     bool isPlayerAvailable() const;
