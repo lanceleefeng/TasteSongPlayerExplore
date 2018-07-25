@@ -74,7 +74,7 @@ private slots:
     
     void next();
     void previous();
-    
+
     void seek(int seconds);
     
     void jump(const QModelIndex &index);

@@ -12,7 +12,7 @@
 #include <QStandardPaths>
 #include <QDir>
 
-
+#include "config.h"
 #include "db.h"
 
 // 实现DB单例模式，但Instance方法在cpp文件中实现一直报错
@@ -53,25 +53,19 @@ QString DB::error()
 // void DB::setConn(QString connectionName = "")
 void DB::setConn(QString connectionName)
 {
+    //qDebug() << __FUNCTION__;
+
     QString driver = "QSQLITE";
 
-    QString dbPath;
-    dbPath = QCoreApplication::applicationDirPath();
-    //dbPath = "E:";
-
-    QString appLocalDataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    if(!appLocalDataPath.isEmpty()){
-        dbPath = appLocalDataPath;
-    }
-
-    //QString dbName = "test.db";
+    QString dbPath = Config::dataPath;
     QString dbName = "setttings.db";
-    //QString dbName = "../setttings.db";
+
+    //dbPath = QCoreApplication::applicationDirPath();
+    //dbName = "../setttings.db";
 
     QString dbFullPath = dbPath + "/" + dbName;
 
     qDebug() << "db path: " << dbFullPath;
-    //qDebug() << __FUNCTION__;
 
     if(connectionName.size() == 0){
         //db.conn = QSqlDatabase::addDatabase(driver);

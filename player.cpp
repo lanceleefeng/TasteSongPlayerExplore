@@ -244,6 +244,52 @@ Player::Player(QWidget *parent)
     //connect(playOrPauseShortcut, &QShortcut::activated, &Player::playOrPause);
     connect(playOrPauseShortcut, &QShortcut::activated, this, &Player::playOrPause);
 
+
+    QShortcut *prevShortcut = new QShortcut(QKeySequence(Qt::Key_Left), this);
+    QShortcut *nextShortcut = new QShortcut(QKeySequence(Qt::Key_Right), this);
+
+    QShortcut *prevShortcut2 = new QShortcut(QKeySequence(Qt::Key_PageUp), this);
+    QShortcut *nextShortcut2 = new QShortcut(QKeySequence(Qt::Key_PageDown), this);
+
+
+    QShortcut *volumeIncShortcut = new QShortcut(QKeySequence(Qt::Key_Up), this);
+    QShortcut *volumeDecShortcut = new QShortcut(QKeySequence(Qt::Key_Down), this);
+
+    connect(prevShortcut, &QShortcut::activated, this, &Player::previous);
+    connect(nextShortcut, &QShortcut::activated, this, &Player::next);
+
+    connect(prevShortcut2, &QShortcut::activated, this, &Player::previous);
+    connect(nextShortcut2, &QShortcut::activated, this, &Player::next);
+
+    connect(volumeIncShortcut, &QShortcut::activated, controls, &PlayerControls::volumeIncrease);
+    connect(volumeDecShortcut, &QShortcut::activated, controls, &PlayerControls::volumeDecrease);
+
+
+
+    // Qt::CTRL跟Qt::Key_Control完全不一样：
+    // Qt::CTRL是Qt::Modifier之一，而Qt::Key_Control只是ctrl键
+    // 参考：https://doc.qt.io/qt-5/qt.html#Modifier-enum
+
+    QShortcut *prevModeShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left), this);
+    //QShortcut *nextModeShortcut = new QShortcut(QKeySequence(Qt::Key_Control + Qt::Key_Right), this);
+    //QShortcut *nextModeShortcut = new QShortcut(QKeySequence(Qt::Key_Control + Qt::Key_Right), controls);
+    QShortcut *nextModeShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right), controls);
+
+    QShortcut *prevModeShortcut2 = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Up), this);
+    QShortcut *nextModeShortcut2 = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Down), this);
+
+    connect(prevModeShortcut, &QShortcut::activated, controls, &PlayerControls::prevMode);
+    connect(prevModeShortcut2, &QShortcut::activated, controls, &PlayerControls::prevMode);
+
+    connect(nextModeShortcut, &QShortcut::activated, controls, &PlayerControls::nextMode);
+    connect(nextModeShortcut2, &QShortcut::activated, controls, &PlayerControls::nextMode);
+
+
+
+
+    QShortcut *listSearchShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
+
+
     setWindowInfo();
 
     controls->initiated = true; // 完成初始化
@@ -476,7 +522,6 @@ void Player::previous()
     playNext("prev");
 }
 
-
 /**
  * 完善“下一首”、“上一首”
  * 
@@ -524,7 +569,11 @@ void Player::playNext(QString direction)
     if(switchMode){
         playlist->setPlaybackMode(currentMode);
     }
-    
+
+    if(player->state() != QMediaPlayer::PlayingState){
+        player->play();
+    }
+
 }
 
 void Player::jump(const QModelIndex &index)
@@ -589,6 +638,7 @@ void Player::setMode(int mode)
     playlist->setPlaybackMode(playbackMode);
     
 }
+
 
 void Player::metaDataChanged()
 {
@@ -728,7 +778,4 @@ void Player::endSaveWindowConfig()
     settings.setValue("window/width", newSize.width());
     settings.setValue("window/height", newSize.height());
 
-
 }
-
-

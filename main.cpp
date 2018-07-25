@@ -37,7 +37,6 @@
 //public static QLockFile lock;
 //static QLockFile lock; // 是一种实例化方式
 static QLockFile *lock; // 只是定义一个指针
-static QString dataPath;
 
 
 int main(int argc, char *argv[])
@@ -54,17 +53,23 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("onenet.wiki");
 
     // 系统AppLocalData + 组织名/应用名
-    //dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     Config::dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    dataPath = Config::dataPath;
 
-    if(!dataPath.isEmpty()){
-        QDir dirObj(dataPath);
+    // 配置数据区分Debug和Release
+#ifdef QT_NO_DEBUG
+
+#else
+    Config::dataPath = Config::dataPath + "/debug";
+#endif
+
+
+    if(!Config::dataPath.isEmpty()){
+        QDir dirObj(Config::dataPath);
         if(!dirObj.exists()){
-            qDebug() << "目录不存在：" << dataPath;
-            dirObj.mkpath(dataPath);
+            qDebug() << "目录不存在：" << Config::dataPath;
+            dirObj.mkpath(Config::dataPath);
         }else{
-            qDebug() << "目录存在：" << dataPath;
+            qDebug() << "目录存在：" << Config::dataPath;
         }
     }
 
@@ -105,11 +110,11 @@ int main(int argc, char *argv[])
 
 
     //QString file = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("walking.lock");
-    QString file = QString("%1/%2").arg(dataPath).arg("walking.lock");
+    QString file = QString("%1/%2").arg(Config::dataPath).arg("walking.lock");
 
     DWORD processId = GetCurrentProcessId();
     //QString pidFile = QCoreApplication::applicationDirPath() + "/pid";
-    QString pidFile = dataPath + "/pid";
+    QString pidFile = Config::dataPath + "/pid";
 
     // QLockFile::tryLock本身会创建文件，不需要提前创建
     // 自动创建的文件会写入pid、项目名称、系统名称

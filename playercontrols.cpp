@@ -149,11 +149,26 @@ void PlayerControls::setVolume(int volume)
     volumeSlider->setValue(qRound(logarithmicVolume * 100));
 }
 
+void PlayerControls::volumeIncrease()
+{
+    int volume = this->volume();
+    this->setVolume(volume + 5);
+    //qDebug() << "volume: " << volume << " -> " << volume + 5;
+}
+
+void PlayerControls::volumeDecrease()
+{
+    int volume = this->volume();
+    this->setVolume(volume - 5);
+    //qDebug() << "volume: " << volume << " -> " << volume - 5;
+}
+
 //void PlayerControls::setMode(QMediaPlaylist::PlaybackMode mode)
 void PlayerControls::setMode(int index)
 {
     modeBox->setCurrentIndex(index);
 }
+
 
 void PlayerControls::setMuted(bool muted)
 {
@@ -206,7 +221,8 @@ void PlayerControls::onVolumeSliderValueChanged()
 
 int PlayerControls::mode() const
 {
-    int mode = modeBox->itemData(modeBox->currentIndex()).toInt();
+    //int mode = modeBox->itemData(modeBox->currentIndex()).toInt();
+    int mode = modeBox->currentIndex();
     //qDebug() << "mode: " << mode;
     return mode;
 }
@@ -214,6 +230,25 @@ int PlayerControls::mode() const
 void PlayerControls::modeChanged(){
     emit changeMode(mode());
     saveMode();
+}
+
+void PlayerControls::nextMode()
+{
+    //int mode = modeBox->currentIndex();
+    //int mode = mode();
+    int mode = this->mode();
+    mode++;
+    mode = mode <= 4 ? mode : 0;
+    //modeBox->setCurrentIndex(mode);
+    this->setMode(mode);
+}
+
+void PlayerControls::prevMode()
+{
+    int mode = this->mode();
+    mode--;
+    mode = mode >= 0 ? mode : 4;
+    this->setMode(mode);
 }
 
 void PlayerControls::saveMode(){

@@ -46,7 +46,15 @@ signals:
     void changeRate(qreal rate);
     
     void changeMode(int mode);
-    
+
+public slots:
+
+    void nextMode();
+    void prevMode();
+
+    void volumeIncrease();
+    void volumeDecrease();
+
 private slots:
     void playClicked();
     void muteClicked();
