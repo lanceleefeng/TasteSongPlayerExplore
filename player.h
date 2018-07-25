@@ -69,6 +69,8 @@ private slots:
     void durationChanged(qint64 duration);
     void positionChanged(qint64 progress);
     void metaDataChanged();
+
+    void playOrPause();
     
     void next();
     void previous();

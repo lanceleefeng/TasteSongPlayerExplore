@@ -3,6 +3,7 @@
 #include <QVideoProbe>
 #include <QMediaMetaData>
 #include <QtWidgets>
+#include <QKeySequence>
 #include <QShortcut>
 
 #include <QCloseEvent>
@@ -234,6 +235,14 @@ Player::Player(QWidget *parent)
     addToPlaylist(m_index_path, false);
 
     setAcceptDrops(true); // 启用拖放
+
+    // 快捷键操作：
+
+    // 空格暂停、播放， Press Space to Play/Pause
+    QShortcut *playOrPauseShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    //connect(playOrPauseShortcut, &QShortcut::activated, player, &QMediaPlayer::play);
+    //connect(playOrPauseShortcut, &QShortcut::activated, &Player::playOrPause);
+    connect(playOrPauseShortcut, &QShortcut::activated, this, &Player::playOrPause);
 
     setWindowInfo();
 
@@ -594,6 +603,19 @@ void Player::metaDataChanged()
         }
     }
 }
+
+
+void Player::playOrPause()
+{
+    qDebug() << player->state();
+
+    if(player->state() == QMediaPlayer::PlayingState){
+        player->pause();
+    }else{
+        player->play();
+    }
+}
+
 
 void Player::setTrackInfo(const QString &info)
 {
