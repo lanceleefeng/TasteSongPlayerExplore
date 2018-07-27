@@ -134,33 +134,52 @@ void PlayerControls::setState(QMediaPlayer::State state)
 
 int PlayerControls::volume() const
 {
-    qreal linearVolume = QAudio::convertVolume(volumeSlider->value() / qreal(100)
-                                               , QAudio::LogarithmicVolumeScale
-                                               , QAudio::LinearVolumeScale);
-    
-    return qRound(linearVolume * 100);
+    //qreal linearVolume = QAudio::convertVolume(volumeSlider->value() / qreal(100)
+    //                                           , QAudio::LogarithmicVolumeScale
+    //                                           , QAudio::LinearVolumeScale);
+    //int vo = qRound(linearVolume * 100);
+    //qDebug() << __FUNCTION__ << ", volume: " << vo << "slider: " << volumeSlider->value();
+    //return vo;
+    return volumeSlider->value();
 }
+
 
 void PlayerControls::setVolume(int volume)
 {
-    qreal logarithmicVolume = QAudio::convertVolume(volume / qreal(100)
-                                                    , QAudio::LinearVolumeScale
-                                                    , QAudio::LogarithmicVolumeScale);
-    volumeSlider->setValue(qRound(logarithmicVolume * 100));
+    //qreal logarithmicVolume = QAudio::convertVolume(volume / qreal(100)
+    //                                                , QAudio::LinearVolumeScale
+    //                                                , QAudio::LogarithmicVolumeScale);
+    //int vo = qRound(logarithmicVolume * 100);
+    //qDebug() << __FUNCTION__ << "volume: " << volume << ", " << vo;
+    //volumeSlider->setValue(vo);
+
+    //qDebug() << __FUNCTION__ << volume;
+    volumeSlider->setValue(volume);
 }
 
 void PlayerControls::volumeIncrease()
 {
     int volume = this->volume();
-    this->setVolume(volume + 5);
-    //qDebug() << "volume: " << volume << " -> " << volume + 5;
+    int newVolume = volume + 5;
+    //int newVolume = qRound(volume*1.05);
+    //int newVolume = qRound(volume/0.95);
+    //int newVolume = qCeil(volume/0.95);
+
+    qDebug() << __FUNCTION__ << "volume: " << volume << " -> " << newVolume;
+
+    this->setVolume(newVolume);
 }
 
 void PlayerControls::volumeDecrease()
 {
     int volume = this->volume();
-    this->setVolume(volume - 5);
-    //qDebug() << "volume: " << volume << " -> " << volume - 5;
+    int newVolume = volume - 5;
+    //int newVolume = qRound(volume*0.95);
+    //int newVolume = qRound(volume/1.05);
+    //int newVolume = qFloor(volume/1.05);
+
+    qDebug() << __FUNCTION__ << "volume: " << volume << " -> " << newVolume;
+    this->setVolume(newVolume);
 }
 
 //void PlayerControls::setMode(QMediaPlaylist::PlaybackMode mode)
@@ -287,11 +306,13 @@ void PlayerControls::saveVolume()
         return;
     }
     timerSaveVolume = true;
-    //QTimer::singleShot(2000, SLOT(doSaveVolume()));
-    QTimer::singleShot(3000, this, SLOT(doSaveVolume()));
+    QTimer::singleShot(500, this, SLOT(doSaveVolume()));
+    //QTimer::singleShot(3000, this, SLOT(doSaveVolume()));
 }
 void PlayerControls::doSaveVolume(){
     //qDebug() << __FUNCTION__ << " called";
+    qDebug() << __FUNCTION__ << ":" << volume();
+
     timerSaveVolume = false;
 
     SettingModel setting;
