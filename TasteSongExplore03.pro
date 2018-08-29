@@ -31,6 +31,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
     player.cpp \
+    lineedit.cpp \
     videowidget.cpp \
     playercontrols.cpp \
     playlistmodel.cpp \
@@ -44,6 +45,7 @@ SOURCES += main.cpp\
 
 HEADERS  += \
     player.h \
+    lineedit.h \
     videowidget.h \
     playercontrols.h \
     playlistmodel.h \

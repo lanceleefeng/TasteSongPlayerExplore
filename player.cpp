@@ -3,6 +3,8 @@
 #include <QVideoProbe>
 #include <QMediaMetaData>
 #include <QtWidgets>
+#include <QDialog>
+#include <QVBoxLayout>
 #include <QKeySequence>
 #include <QShortcut>
 
@@ -18,6 +20,7 @@
 #include "playlistmodel.h"
 //#include "histogramwidget.h"
 
+//#include "lineedit.h"
 #include "config.h"
 #include "db.h"
 #include "musicmodel.h"
@@ -27,6 +30,9 @@
 
 Player::Player(QWidget *parent)
     : QWidget(parent)
+    , listSearchInput(0)
+    , listSearchListWidget(0)
+    , listSearchDialog(0)
     , videoWidget(0)
     , coverLabel(0)
     , slider(0)
@@ -79,7 +85,13 @@ Player::Player(QWidget *parent)
 
     playlistModel = new PlaylistModel(this);
     playlistModel->setPlaylist(playlist);
-    
+
+    listSearchInput = new LineEdit(this);
+    QPushButton *listSearchButton = new QPushButton(tr("搜索列表"), this);
+
+    connect(listSearchButton, &QPushButton::clicked, this, &Player::doListSearch);
+
+
     playlistView = new QListView(this);
     playlistView->setModel(playlistModel);
     playlistView->setCurrentIndex(playlistModel->index(playlist->currentIndex(), 0));
@@ -174,7 +186,20 @@ Player::Player(QWidget *parent)
 
 
     QBoxLayout *displayLayout = new QHBoxLayout;
-    displayLayout->addWidget(playlistView);
+
+    QBoxLayout *leftLayout = new QVBoxLayout;
+    QBoxLayout *listSearchLayout = new QHBoxLayout;
+
+    listSearchLayout->addWidget(listSearchInput);
+    listSearchLayout->addWidget(listSearchButton);
+
+    //leftLayout->addLayout(listSearchLayout);
+    leftLayout->addWidget(playlistView);
+    leftLayout->addLayout(listSearchLayout);
+
+
+    //displayLayout->addWidget(playlistView);
+    displayLayout->addLayout(leftLayout);
 
     displayLayout->addWidget(videoWidget, 2); // videoWidget留着占位，以后改成歌词
 
@@ -286,8 +311,16 @@ Player::Player(QWidget *parent)
 
 
 
-
     QShortcut *listSearchShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
+
+    // Return是主键盘的回车键，Enter是小键盘的Enter
+    QShortcut *returnShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+    QShortcut *enterShortcut = new QShortcut(QKeySequence(Qt::Key_Enter), this);
+
+    connect(listSearchShortcut, SIGNAL(activated()), this, SLOT(doListSearch()));
+
+    connect(returnShortcut, SIGNAL(activated()), this, SLOT(enterFilter()));
+    connect(enterShortcut, SIGNAL(activated()), this, SLOT(enterFilter()));
 
 
     setWindowInfo();
@@ -584,10 +617,127 @@ void Player::jump(const QModelIndex &index)
     }
 }
 
+
+void Player::enterFilter()
+{
+
+    qDebug() << __FUNCTION__ << sender();
+
+    // QObject::sender()
+    // sender() 是触发信号的对象，是QShortcut..
+    //if(sender() == listSearch){
+    //    doListSearch();
+    //}
+
+    if(listSearchInput->hasFocus()){
+        doListSearch();
+    }
+
+
+}
+
+void Player::doListSearch()
+{
+    QString keywords = listSearchInput->text();
+    qDebug() << __FUNCTION__ << ": " << keywords;
+
+    if(keywords.isEmpty()){
+        return;
+    }
+
+
+    QStringList searchResult;
+
+    QMap<QString, QVariant> item;
+    QString name;
+    foreach(item, m_datas)
+    {
+
+        name = item["name"].toString();
+
+        //qDebug() << item["path"];
+        //qDebug() << item["name"];
+
+        if(name.contains(keywords, Qt::CaseInsensitive)){
+            qDebug() << name << ": match";
+            searchResult << name;
+        }
+    }
+
+
+    // 需要在Player::Player中加初始化代码，否则程序崩溃
+    //, listSearchDialog(0)
+
+    QVBoxLayout *searchLayout = new QVBoxLayout;
+
+    if(!listSearchDialog){
+        qDebug() << "enter if";
+
+        listSearchDialog = new QDialog(this);
+        //listSearchDialog = new QDialog();
+
+        listSearchDialog->setModal(false);
+
+        listSearchDialog->resize(300, 500);
+        //listSearchDialog->move(0, 0);
+
+
+        //QPushButton *button = new QPushButton(tr("搜索结果"));
+        //searchLayout->addWidget(button);
+
+        listSearchListWidget = new QListWidget(listSearchDialog);
+
+
+        searchLayout->addWidget(listSearchListWidget);
+
+        qDebug() << "before setLayout";
+        listSearchDialog->setLayout(searchLayout);
+        qDebug() << "after setLayout";
+
+
+
+    }else{
+
+        //searchLayout->removeWidget(listSearchListWidget);
+
+        listSearchListWidget->clear();
+
+
+    }
+    qDebug() << "after if";
+
+
+
+    QString searchTitlePrefix = tr("Search Result of ");
+    QString title = QString("%1\"%2\"").arg(searchTitlePrefix).arg(keywords);
+    listSearchDialog->setWindowTitle(title);
+
+
+    //QPushButton *button = new QPushButton(tr("搜索结果2"));
+    //searchLayout->addWidget(button);
+
+    //listSearchListWidget = new QListWidget;
+
+
+    foreach(name, searchResult){
+        new QListWidgetItem(name, listSearchListWidget);
+    }
+
+
+    listSearchDialog->show();
+    listSearchDialog->raise();
+    //listSearchDialog->activateWindow();
+    //listSearchDialog->exec();
+
+}
+
+
 void Player::seek(int seconds)
 {
     player->setPosition(seconds * 1000);
 }
+
+
 
 void Player::playlistPositionChanged(int currentItem)
 {
@@ -718,6 +868,16 @@ void Player::moveEvent(QMoveEvent *event)
     //qDebug() << "y: " << oldPos.y() << " -> " << pos.y();
 
     beginSaveWindowConfig();
+}
+
+
+void Player::keyReleaseEvent(QKeyEvent *event)
+{
+    qDebug() << event->key();
+    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter){
+        qDebug() << "Enter or Return pressed";
+        //if(listSearch->hasFocus()) doListSearch();
+    }
 }
 
 

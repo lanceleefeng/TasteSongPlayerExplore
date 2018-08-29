@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     
     // QCoreApplication::setApplicationName("TasteSong Explore 02");
     // QCoreApplication::setApplicationName(tr("TasteSong Explore 02"));
-    QCoreApplication::setApplicationName(QObject::tr("TasteSong Explore 02"));
+    QCoreApplication::setApplicationName(QObject::tr("TasteSong，静静聆听音乐"));
     QCoreApplication::setApplicationVersion("0.1");
 
     //QCoreApplication::setOrganizationName("OneNet Inc.");

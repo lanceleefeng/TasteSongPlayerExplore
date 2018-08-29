@@ -2,11 +2,15 @@
 #define PLAYER_H
 
 #include <QWidget>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <QCloseEvent>
+#include <QKeyEvent>
 
 
+#include "lineedit.h"
 #include "videowidget.h"
 
 
@@ -19,6 +23,7 @@ class QPushButton;
 class QSlider;
 class QVideoProbe;
 class QVideoWidget;
+class QDialog;
 QT_END_NAMESPACE
 
 class PlaylistModel;
@@ -61,6 +66,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void moveEvent(QMoveEvent *event);
 
+    void keyReleaseEvent(QKeyEvent *event);
+
 
     void delPid();
 
@@ -75,7 +82,16 @@ private slots:
     void next();
     void previous();
 
+    /**
+     * Enter键动作过滤
+     * Qt::Key_Enter: 小键盘Enter
+     * Qt::Key_Return: 主键盘Enter（回车键）
+     */
+    void enterFilter();
+    void doListSearch();
+
     void seek(int seconds);
+
     
     void jump(const QModelIndex &index);
     void playlistPositionChanged(int);
@@ -94,6 +110,11 @@ private:
     
     QMediaPlayer *player;
     QMediaPlaylist *playlist;
+
+    LineEdit *listSearchInput;
+    QListWidget *listSearchListWidget;
+    QDialog *listSearchDialog;
+
     VideoWidget *videoWidget;
     QLabel *coverLabel;
     QSlider *slider;
