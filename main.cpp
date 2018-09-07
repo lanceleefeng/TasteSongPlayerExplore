@@ -42,26 +42,35 @@ static QLockFile *lock; // 只是定义一个指针
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    
-    // QCoreApplication::setApplicationName("TasteSong Explore 02");
-    // QCoreApplication::setApplicationName(tr("TasteSong Explore 02"));
-    QCoreApplication::setApplicationName(QObject::tr("TasteSong，静静聆听音乐"));
-    QCoreApplication::setApplicationVersion("0.1");
 
-    //QCoreApplication::setOrganizationName("OneNet Inc.");
-    QCoreApplication::setOrganizationName("OneNet");
-    QCoreApplication::setOrganizationDomain("onenet.wiki");
 
-    // 系统AppLocalData + 组织名/应用名
-    Config::dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QString appName = QObject::tr("TasteSong，静静聆听音乐");
 
     // 配置数据区分Debug和Release
+    // 直接把应用名给改了
 #ifdef QT_NO_DEBUG
 
 #else
-    Config::dataPath = Config::dataPath + "/debug";
+    //Config::dataPath = Config::dataPath + "/debug";
+    appName = QString("%1(Debug)").arg(appName);
 #endif
 
+
+    // QCoreApplication::setApplicationName("TasteSong Explore 02");
+    // QCoreApplication::setApplicationName(tr("TasteSong Explore 02"));
+    QCoreApplication::setApplicationName(appName);
+    QCoreApplication::setApplicationVersion("0.1");
+
+    //QCoreApplication::setOrganizationName("OneNet Inc.");
+    //QCoreApplication::setOrganizationName("OneNet");
+    //QCoreApplication::setOrganizationDomain("onenet.wiki");
+
+    QCoreApplication::setOrganizationName("lancelee.me");
+    QCoreApplication::setOrganizationDomain("lancelee.me");
+
+
+    // 系统AppLocalData + 组织名/应用名
+    Config::dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
 
     if(!Config::dataPath.isEmpty()){
         QDir dirObj(Config::dataPath);
@@ -204,7 +213,10 @@ int main(int argc, char *argv[])
     //player.showMaximized();
 #endif
 
-    QSettings settings;
+    //QSettings settings;
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                       QCoreApplication::organizationName(), QCoreApplication::applicationName());
+
     int width = settings.value("window/width").toInt();
     int height = settings.value("window/height").toInt();
     //player.resize(width, height);

@@ -40,8 +40,11 @@ signals:
     void stop();
     void next();
     void previous();
-    
+
+    // 信号函数 SIGNAL 不需要实现..
     void changeVolume(int volume);
+
+
     void changeMute(bool muting);
     void changeRate(qreal rate);
     
@@ -59,7 +62,8 @@ private slots:
     void playClicked();
     void muteClicked();
     void updateRate();
-    void onVolumeSliderValueChanged();
+    //void onVolumeSliderValueChanged();
+    void onVolumeSliderValueChanged(int sliderVolume);
     void modeChanged();
 
     //void saveMode(QMediaPlaylist::PlaybackMode mode);

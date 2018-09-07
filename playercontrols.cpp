@@ -61,7 +61,7 @@ PlayerControls::PlayerControls(QWidget *parent)
     volumeSlider = new QSlider(Qt::Horizontal, this);
     volumeSlider->setRange(0, 100);
     
-    connect(volumeSlider, SIGNAL(valueChanged(int)), this, SLOT(onVolumeSliderValueChanged()));
+    connect(volumeSlider, SIGNAL(valueChanged(int)), this, SLOT(onVolumeSliderValueChanged(int)));
     //connect(volumeSlider, SIGNAL(sliderReleased()), this, SLOT(saveVolume()));
     //connect(volumeSlider, SIGNAL(sliderPressed()), this, SLOT(saveVolume()));
 
@@ -134,27 +134,67 @@ void PlayerControls::setState(QMediaPlayer::State state)
 
 int PlayerControls::volume() const
 {
-    //qreal linearVolume = QAudio::convertVolume(volumeSlider->value() / qreal(100)
-    //                                           , QAudio::LogarithmicVolumeScale
-    //                                           , QAudio::LinearVolumeScale);
-    //int vo = qRound(linearVolume * 100);
-    //qDebug() << __FUNCTION__ << ", volume: " << vo << "slider: " << volumeSlider->value();
-    //return vo;
-    return volumeSlider->value();
+    //qreal linearVolume = QAudio::convertVolume(
+    //    volumeSlider->value() / qreal(100)
+    //    , QAudio::LinearVolumeScale
+    //    //, QAudio::LogarithmicVolumeScale
+    //    , QAudio::CubicVolumeScale
+    //);
+
+    qreal linearVolume = QAudio::convertVolume(
+        volumeSlider->value() / qreal(100)
+        //, QAudio::LogarithmicVolumeScale
+        , QAudio::CubicVolumeScale
+        , QAudio::LinearVolumeScale
+    );
+
+    int vo = qRound(linearVolume * 100);
+    qDebug() << __FUNCTION__ << ", slider volume: " << volumeSlider->value()
+             << ", linear volume: " << vo ;
+    return vo;
+    //return volumeSlider->value();
 }
 
 
 void PlayerControls::setVolume(int volume)
 {
-    //qreal logarithmicVolume = QAudio::convertVolume(volume / qreal(100)
-    //                                                , QAudio::LinearVolumeScale
-    //                                                , QAudio::LogarithmicVolumeScale);
-    //int vo = qRound(logarithmicVolume * 100);
-    //qDebug() << __FUNCTION__ << "volume: " << volume << ", " << vo;
-    //volumeSlider->setValue(vo);
-
     //qDebug() << __FUNCTION__ << volume;
-    volumeSlider->setValue(volume);
+
+    //https://doc.qt.io/qt-5/qaudio.html#VolumeScale-enum
+    //https://doc.qt.io/qt-5/qaudio.html#convertVolume
+
+    // Qt官方播放器示例项目 player 中，是从Linear转换到Logarithmic
+    // 而QAudio::convertVolume中的示例，是想到的，转换成Liner然后给Player设置音量；
+    // 另外，在olumeScale-enum的文档中，也说Player使用Linear音量，而UI界面上设置音量的使用Log对数音量
+
+    // 但是，如果Player使用Linear音量，20以下，很多音乐必须调到非常低的音量，稍微调高音量就感觉非常大
+    // 而如果使用Logarithmic音量，则合适的音量范围在50左右，方便使用
+    // 但是使用Logarithmic音量无法用快捷键调整到最大音量
+
+    // 最终还是决定按player官方示例中那样使用，
+    // 不过不用Logarithmic给Plyaer设置音量，换成Cubic，可以调到到100了
+
+    //qreal logarithmicVolume = QAudio::convertVolume(
+    //    volume / qreal(100)
+    //    //, QAudio::LogarithmicVolumeScale
+    //    , QAudio::CubicVolumeScale
+    //    , QAudio::LinearVolumeScale
+    //);
+
+    qreal logarithmicVolume = QAudio::convertVolume(
+        volume / qreal(100)
+        , QAudio::LinearVolumeScale
+        //, QAudio::LogarithmicVolumeScale
+        , QAudio::CubicVolumeScale
+    );
+
+
+
+    int vo = qRound(logarithmicVolume * 100);
+    qDebug() << __FUNCTION__ << ", linear volume: " << volume << ", logarithimc volume " << vo;
+    volumeSlider->setValue(vo);
+
+    //volumeSlider->setValue(volume);
 }
 
 void PlayerControls::volumeIncrease()
@@ -165,7 +205,7 @@ void PlayerControls::volumeIncrease()
     //int newVolume = qRound(volume/0.95);
     //int newVolume = qCeil(volume/0.95);
 
-    qDebug() << __FUNCTION__ << "volume: " << volume << " -> " << newVolume;
+    qDebug() << __FUNCTION__ << ", old volume: " << volume << " -> new volume:  " << newVolume;
 
     this->setVolume(newVolume);
 }
@@ -178,9 +218,18 @@ void PlayerControls::volumeDecrease()
     //int newVolume = qRound(volume/1.05);
     //int newVolume = qFloor(volume/1.05);
 
-    qDebug() << __FUNCTION__ << "volume: " << volume << " -> " << newVolume;
+    qDebug() << __FUNCTION__ << ", old volume: " << volume << " -> new volume " << newVolume;
     this->setVolume(newVolume);
 }
+
+
+void PlayerControls::onVolumeSliderValueChanged(int sliderVolume)
+{
+    qDebug() << __FUNCTION__ << ": " << sliderVolume;
+    emit changeVolume(volume());
+    saveVolume();
+}
+
 
 //void PlayerControls::setMode(QMediaPlaylist::PlaybackMode mode)
 void PlayerControls::setMode(int index)
@@ -230,12 +279,6 @@ void PlayerControls::muteClicked()
 void PlayerControls::updateRate()
 {
     
-}
-
-void PlayerControls::onVolumeSliderValueChanged()
-{
-    emit changeVolume(volume());
-    saveVolume();
 }
 
 int PlayerControls::mode() const

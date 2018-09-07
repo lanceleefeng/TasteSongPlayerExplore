@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     basemodel.cpp \
     settingmodel.cpp \
     tools.cpp \
-    config.cpp
+    config.cpp \
+    listsearchdialog.cpp
 
 HEADERS  += \
     player.h \
@@ -55,7 +56,8 @@ HEADERS  += \
     basemodel.h \
     settingmodel.h \
     tools.h \
-    config.h
+    config.h \
+    listsearchdialog.h
 
 
 RC_ICONS="TasteSong6.ico"

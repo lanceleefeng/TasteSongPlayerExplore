@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES main.cpp db.cpp db.h dbinit.cpp dbinit.h musicmodel.cpp musicmodel.h lineedit.cpp lineedit.h
         player.cpp player.h playercontrols.cpp playercontrols.h playlistmodel.cpp playlistmodel.h
-        videowidget.cpp videowidget.h
+        videowidget.cpp videowidget.h listsearchdialog.cpp listsearchdialog.h
         basemodel.cpp basemodel.h settingmodel.cpp settingmodel.h tools.h tools.cpp config.cpp config.h)
 
 set (CMAKE_PREFIX_PATH "E:/develop/Qt/5.11.1/mingw53_32")

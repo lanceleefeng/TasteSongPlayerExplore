@@ -3,6 +3,7 @@
 
 #include <QLineEdit>
 #include <QKeyEvent>
+#include <QMouseEvent>
 
 
 class LineEdit : public QLineEdit
@@ -15,8 +16,8 @@ public:
 
 protected:
     void enterEvent(QEvent *event);
+    //void mouseReleaseEvent(QMouseEvent *event);
     //void keyReleaseEvent(QKeyEvent *event);
-
 
 };
 

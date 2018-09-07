@@ -32,7 +32,11 @@ public:
     static void pf(int num, bool printNumber = true);
     static void pf(QVariantMap data);
     static void pf(QMap<QString, QString> data);
+
+    static void pf(QStringList data);
     static void pf(QList<QVariantMap> data);
+
+
 };
 
 

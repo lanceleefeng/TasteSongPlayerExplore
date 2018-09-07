@@ -31,7 +31,6 @@
 Player::Player(QWidget *parent)
     : QWidget(parent)
     , listSearchInput(0)
-    , listSearchListWidget(0)
     , listSearchDialog(0)
     , videoWidget(0)
     , coverLabel(0)
@@ -150,7 +149,6 @@ Player::Player(QWidget *parent)
     connect(controls, SIGNAL(previous()), this, SLOT(previous()));
     
     connect(controls, SIGNAL(changeVolume(int)), player, SLOT(setVolume(int)));
-
 
     //保存音量也不能由volumeChanged()触发？
     //初始化的时候也会设置音量
@@ -338,7 +336,7 @@ void Player::setWindowInfo()
 
     QMap<QString, QString> config = Config::windowConfig();
 
-    qDebug() << __FUNCTION__;
+    //qDebug() << __FUNCTION__;
     Tools::pf(config);
 
     this->resize(config["width"].toInt(), config["height"].toInt());
@@ -555,6 +553,7 @@ void Player::previous()
     playNext("prev");
 }
 
+
 /**
  * 完善“下一首”、“上一首”
  * 
@@ -578,7 +577,7 @@ void Player::playNext(QString direction)
     QMediaPlaylist::PlaybackMode currentMode = playlist->playbackMode();
     
     bool switchMode = false;
-    
+
     switch(currentMode){
     case QMediaPlaylist::CurrentItemOnce:
     case QMediaPlaylist::CurrentItemInLoop:
@@ -608,6 +607,26 @@ void Player::playNext(QString direction)
     }
 
 }
+
+void Player::playSearchItem(QListWidgetItem *item) const
+{
+    qDebug() << __FUNCTION__ << item->text();
+    playSearchItem(item->text());
+}
+
+void Player::playSearchItem(QString text) const
+{
+    qDebug() << __FUNCTION__ << text;
+
+    listSearchDialog->hide();
+
+    if(searchResultIndex.contains(text)){
+        int index = searchResultIndex[text];
+        playlist->setCurrentIndex(index);
+        player->play();
+    }
+}
+
 
 void Player::jump(const QModelIndex &index)
 {
@@ -645,13 +664,26 @@ void Player::doListSearch()
         return;
     }
 
+    if(keywords == previousKeywords){
+        listSearchDialog->show();
+        listSearchDialog->raise();
+        listSearchDialog->activateWindow();
+        return;
+    }
+    previousKeywords = keywords;
 
     QStringList searchResult;
+    //QMap<QString, int> searchResultIndex;
+
+    //Tools::pf(m_datas);
+    //Tools::pf(m_index_path);
 
     QMap<QString, QVariant> item;
     QString name;
-    foreach(item, m_datas)
-    {
+
+    int size = m_datas.size();
+    for(int j = 0; j < size; ++j){
+        item = m_datas.at(j);
 
         name = item["name"].toString();
 
@@ -660,7 +692,10 @@ void Player::doListSearch()
 
         if(name.contains(keywords, Qt::CaseInsensitive)){
             qDebug() << name << ": match";
-            searchResult << name;
+            //searchResult << name;
+            QString resultItem = QString("%1 %2").arg(j + 1).arg(name);
+            searchResult << resultItem;
+            searchResultIndex[resultItem] = j;
         }
     }
 
@@ -668,44 +703,49 @@ void Player::doListSearch()
     // 需要在Player::Player中加初始化代码，否则程序崩溃
     //, listSearchDialog(0)
 
-    QVBoxLayout *searchLayout = new QVBoxLayout;
+
 
     if(!listSearchDialog){
         qDebug() << "enter if";
 
-        listSearchDialog = new QDialog(this);
+        //listSearchDialog = new QDialog(this);
         //listSearchDialog = new QDialog();
+        listSearchDialog = new ListSearchDialog(this);
 
         listSearchDialog->setModal(false);
 
         listSearchDialog->resize(300, 500);
         //listSearchDialog->move(0, 0);
 
+        // listSearchListWidget应该写成listSearchDialog的属性！
+        // 显示在Dialog中，如果Dialog要加快捷键，比如方向键、Enter播放等等，都需要与listSearchListWidget交互
+        // 如果不放到Dialog，则无法交互..
 
-        //QPushButton *button = new QPushButton(tr("搜索结果"));
-        //searchLayout->addWidget(button);
+        //listSearchListWidget = new QListWidget(listSearchDialog);
+        listSearchDialog->listSearchListWidget = new QListWidget(listSearchDialog);
 
-        listSearchListWidget = new QListWidget(listSearchDialog);
+        //connect(listSearchListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *item)), this, SLOT(playSearchItem(QListWidgetItem *item)));
+        connect(listSearchDialog->listSearchListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(playSearchItem(QListWidgetItem *)));
 
+        connect(listSearchDialog, SIGNAL(playItem(QListWidgetItem *)), this, SLOT(playSearchItem(QListWidgetItem *)));
+        connect(listSearchDialog, SIGNAL(playItem(QString)), this, SLOT(playSearchItem(QString)));
 
-        searchLayout->addWidget(listSearchListWidget);
+        QVBoxLayout *searchLayout = new QVBoxLayout;
+
+        searchLayout->addWidget(listSearchDialog->listSearchListWidget);
+
 
         qDebug() << "before setLayout";
         listSearchDialog->setLayout(searchLayout);
         qDebug() << "after setLayout";
 
-
-
     }else{
 
-        //searchLayout->removeWidget(listSearchListWidget);
-
-        listSearchListWidget->clear();
+        listSearchDialog->listSearchListWidget->clear();
 
 
     }
     qDebug() << "after if";
-
 
 
     QString searchTitlePrefix = tr("Search Result of ");
@@ -713,21 +753,19 @@ void Player::doListSearch()
     listSearchDialog->setWindowTitle(title);
 
 
-    //QPushButton *button = new QPushButton(tr("搜索结果2"));
-    //searchLayout->addWidget(button);
-
     //listSearchListWidget = new QListWidget;
 
 
     foreach(name, searchResult){
-        new QListWidgetItem(name, listSearchListWidget);
+        new QListWidgetItem(name, listSearchDialog->listSearchListWidget);
     }
-
 
     listSearchDialog->show();
     listSearchDialog->raise();
-    //listSearchDialog->activateWindow();
+    listSearchDialog->activateWindow();
     //listSearchDialog->exec();
+
+    listSearchDialog->listSearchListWidget->setCurrentRow(0);
 
 }
 
@@ -807,7 +845,7 @@ void Player::metaDataChanged()
 
 void Player::playOrPause()
 {
-    qDebug() << player->state();
+    //qDebug() << player->state();
 
     if(player->state() == QMediaPlayer::PlayingState){
         player->pause();
@@ -873,13 +911,18 @@ void Player::moveEvent(QMoveEvent *event)
 
 void Player::keyReleaseEvent(QKeyEvent *event)
 {
-    qDebug() << event->key();
+    //qDebug() << event->key();
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter){
         qDebug() << "Enter or Return pressed";
         //if(listSearch->hasFocus()) doListSearch();
     }
 }
 
+
+void Player::mousePressEvent(QMouseEvent *event)
+{
+    if(listSearchDialog && !listSearchDialog->isHidden()) listSearchDialog->hide();
+}
 
 /**
  * 延时保存
@@ -905,7 +948,7 @@ void Player::beginSaveWindowConfig()
 void Player::endSaveWindowConfig()
 {
 
-    qDebug() << __FUNCTION__;
+    //qDebug() << __FUNCTION__;
 
     QMap<QString, QString> windowConfig;
 
@@ -934,7 +977,10 @@ void Player::endSaveWindowConfig()
     Config::saveWindowConfig(windowConfig);
     //Tools::pf(windowConfig);
 
-    QSettings settings;
+    //QSettings settings;
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                       QCoreApplication::organizationName(), QCoreApplication::applicationName());
+
     settings.setValue("window/width", newSize.width());
     settings.setValue("window/height", newSize.height());
 

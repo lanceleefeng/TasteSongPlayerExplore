@@ -8,10 +8,12 @@
 #include <QMediaPlaylist>
 #include <QCloseEvent>
 #include <QKeyEvent>
+//#include <QMouseEvent>
 
 
 #include "lineedit.h"
 #include "videowidget.h"
+#include "listsearchdialog.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -67,7 +69,7 @@ protected:
     void moveEvent(QMoveEvent *event);
 
     void keyReleaseEvent(QKeyEvent *event);
-
+    void mousePressEvent(QMouseEvent *event);
 
     void delPid();
 
@@ -81,6 +83,9 @@ private slots:
     
     void next();
     void previous();
+
+    void playSearchItem(QListWidgetItem *item) const;
+    void playSearchItem(QString item) const;
 
     /**
      * Enter键动作过滤
@@ -111,9 +116,13 @@ private:
     QMediaPlayer *player;
     QMediaPlaylist *playlist;
 
+    PlaylistModel *playlistModel;
+    QAbstractItemView *playlistView;
+
     LineEdit *listSearchInput;
-    QListWidget *listSearchListWidget;
-    QDialog *listSearchDialog;
+    //QListWidget *listSearchListWidget; // 移到listSearchDialog中
+    //QDialog *listSearchDialog;
+    ListSearchDialog *listSearchDialog;
 
     VideoWidget *videoWidget;
     QLabel *coverLabel;
@@ -128,18 +137,17 @@ private:
     QDialog *colorDialog;
     
     QVideoProbe *probe;
-    
-    PlaylistModel *playlistModel;
-    QAbstractItemView *playlistView;
-    
+
     QString trackInfo;
     QString statusInfo;
     qint64 duration;
-    
-    
+
     QList<QMap<QString, QVariant>> m_datas;
     QStringList m_index_path;
     qint32 m_max_sort;
+
+    QString previousKeywords;
+    QMap<QString, int> searchResultIndex;
     
 };
 

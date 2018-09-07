@@ -76,6 +76,24 @@ void Tools::pf(QMap<QString, QString> data)
 }
 
 
+void Tools::pf(QStringList data)
+{
+    foreach(QString item, data){
+        qDebug() << data.indexOf(item) << ":" << item;
+    }
+}
+
+void Tools::pf(QList<QVariantMap> data)
+{
+    foreach(QVariantMap map, data){
+        QMap<QString, QVariant>::const_iterator i = map.constBegin();
+        while(i != map.constEnd()){
+            qDebug() << i.key() << ": " << i.value();
+            ++i;
+        }
+    }
+}
+
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     EnumWindowArg * pArg = (EnumWindowArg *)lParam;
